@@ -1,0 +1,87 @@
+startshape fract
+
+rule fract {
+TRIANGLE { }
+fract { y .288 s .5 b 1}
+fract { s .5 r 180 b -1 }
+fract { x -.25 y -.144 s .5 b 1}
+fract { x .25 y -.144 s .5 b 1}
+}
+rule fract .5 {}
+
+
+----------------------
+
+{
+ startshape: "fract",
+ fract:
+ [
+  { weight: 1, draw:
+   [
+    {shape:"TRIANGLE"},
+    {shape:"fract", y: .288, s:.5, b:1},
+    {shape:"fract", s: .5, r:180, b:-1},
+    {shape:"fract", x:-.25, y:-.144 s:.5, b:-1},
+    {shape:"fract", x: .25, y: -.144, s:.5, b:1},
+   ]
+  },
+  { weight: .5, draw:[] }
+ ]
+}
+
+
+
+
+
+
+---------------------------
+startshape tree
+
+rule tree {
+    CIRCLE { s .5 1.2 }
+    tree { s .97 y .3 r 3}
+}
+rule tree .1 { 
+    tree { flip 90 } }
+rule tree .1 { 
+    tree { r 10 } 
+    tree { r -30 s .6} }
+
+---
+{
+	startshape: "tree",
+	tree:
+	[
+		{weight: 1, draw:[
+			{shape: "CIRCLE", s:[.5, 1.2]},
+			{shape: "tree", s:.97, y:.3, r:3},
+		]},
+		{weight: .1, draw:[{shape: "tree", flip:90 }]},
+		{weight: .1, draw:[
+			{shape: "tree", r:10},
+			{shape: "tree", r: -30, s:.6}
+		]}
+	]
+}
+
+
+
+----------------------
+
+startshape aza
+
+rule aza {
+  TRIANGLE{}
+}
+
+---
+
+{
+  startshape: "aza",
+  aza:
+  [
+  	{weight: 1, draw:[{shape:"TRIANGLE"}]}
+  ]
+}
+
+

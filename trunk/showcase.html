@@ -1,0 +1,241 @@
+<html>
+<head>
+<script src="contextfree.js"></script>
+<style>
+textarea {display: none;}
+</style>
+</head>
+
+<body>
+<canvas id="canvas" width="1000" height="1000"></canvas>
+<br/>
+
+<textarea id="input0" style="width:400px;height:400px">
+startshape c
+background{ b -1 }
+
+rule c {
+	SQUARE{ r 3 }
+	CIRCLE{ y 1 s .5 }
+	CIRCLE{ x 1 s .5 }
+	CIRCLE{ x -1 }	
+	SQUARE{ y -3 s 1.2 r 45}
+	c { x -2 s .5 }		
+}
+
+rule c .3 {
+	CIRCLE{ }
+}
+</textarea>
+
+<textarea id="inputF" style="width:400px;height:400px">
+startshape WHOLE
+background{ b -1 }
+
+rule WHOLE {
+	QUAD { x -0.5 y -0.5 }
+	QUAD { x  0.5 y -0.5 }
+	QUAD { x  0.5 y  0.5 }
+	QUAD { x -0.5 y  0.5 }
+}
+
+rule QUAD {
+	SQUARE { size 0.8 }
+}
+rule QUAD 5 {
+	WHOLE { size 0.45 r 2 }
+}
+rule QUAD 0.5 {
+}
+</textarea>	
+
+<textarea id="inputC" style="width:400px;height:400px">
+startshape S
+
+rule S {
+  CIRCLE{}
+  C {}	
+}
+
+rule S .4{
+  C {}	
+}
+
+rule C {
+  S{ x -.75 s .5 }
+  S{ x .75 s .5 }	
+  S{ y -.75 s .5 }
+  S{ y  .75 s .5 }	
+}
+
+rule C .05 { }
+</textarea>
+
+
+
+
+<textarea id="input1" style="width:400px;height:400px">
+startshape aza
+background{ b -.5 hue 42 sat .3 }
+
+rule aza {
+  CIRCLE{ b -.5 h 200 a .3 s .5}
+}
+
+rule aza .5{
+  TRIANGLE{ b -.5 h 100 s .5 }
+}
+
+</textarea>
+
+
+<textarea id="input2" style="width:400px;height:400px">
+startshape fract
+
+rule fract {
+TRIANGLE { }
+fract { y .288 s .5 b 1}
+fract { s .5 r 180 b -1 }
+fract { x -.25 y -.144 s .5 b 1}
+fract { x .25 y -.144 s .5 b 1}
+}
+rule fract .5 {}
+</textarea>
+
+<textarea id="input3" style="width:400px;height:400px">
+startshape forest
+
+rule forest { 
+   tree { }
+   forest { z -1 s .7 y .7 x -1.5 b .1}
+   forest { z -1 s .7 y .7 x 1.5 b .1}
+}
+rule tree {
+    CIRCLE { s .5 1.2 }
+    tree { s .97 y .3 r 3}
+}
+rule tree .1 { 
+    tree { flip 90 } }
+rule tree .1 { 
+    tree { r 10 } 
+    tree { r -30 s .6} }
+</textarea>
+
+<textarea id="tree" style="width:400px;height:400px">
+startshape tree
+
+rule tree {
+    CIRCLE { s .5 1.2 }
+    tree { s .97 y .3 r 3}
+}
+rule tree .1 { 
+    tree { flip 90 } }
+rule tree .5 { 
+    tree { r 10 } 
+    tree { r -30 s .6} }
+</textarea>
+
+<textarea id="input4" style="width:400px;height:400px">
+startshape SEED1
+ 
+rule SEED1 {
+ SQUARE{}
+ SEED1 {y 1.2 size 0.99 rotate 1.5 brightness 0.03}
+}
+ 
+rule SEED1 0.05 {SEED1 {flip 90}}
+ 
+rule SEED1 0.05 {
+ SQUARE{}
+ SEED1 {y 1.2 s 0.99 r 1.5 b -0.5 flip 90}
+ SEED1 {y 1.2 x 1.2 s 0.6 r -60 b -0.5}
+ SEED1 {y 1.2 x -1.2 s 0.5 r 60 b -0.5 flip 90}
+}
+</textarea>
+
+<textarea id="input5" style="width:400px;height:400px">
+// CURRENTLY UNIMPLEMENTED
+startshape flower
+
+rule flower {
+    // petals
+    6*{ r 60 } CIRCLE [ r 30 x 0.5 s 1 0.25 ]
+    //center
+    CIRCLE { s 0.25 b 1 }
+}
+</textarea>
+
+
+<textarea id="forest">
+startshape FOREST
+
+rule FOREST {
+     SEED {}
+     SEED {x -20}
+     SEED {x -40}
+}
+
+rule SEED {BRANCH {}}
+rule SEED {BRANCH {rotate 1}}
+rule SEED {BRANCH {rotate -1}}
+rule SEED {BRANCH {rotate 2}}
+rule SEED {BRANCH {rotate -2}}
+rule SEED {FORK {}}
+
+rule BRANCH {LEFTBRANCH {flip 90}}
+rule BRANCH {LEFTBRANCH {}}
+
+rule LEFTBRANCH 4 {BLOCK {} LEFTBRANCH {y 0.885 rotate 0.1 size 0.99}}
+rule LEFTBRANCH 4 {BLOCK {} LEFTBRANCH {y 0.885 rotate 0.2 size 0.99}}
+rule LEFTBRANCH {BLOCK {} LEFTBRANCH {y 0.885 rotate 4 size 0.99}}
+rule LEFTBRANCH {BLOCK {} FORK {}}
+
+
+rule BLOCK {
+     SQUARE {rotate 1}
+     SQUARE {rotate -1}
+     SQUARE {}
+}
+
+rule FORK {
+     BRANCH { }
+     BRANCH {size 0.5 rotate 40}
+}
+rule FORK {
+     BRANCH { }
+     BRANCH {size 0.5 rotate -40}
+}
+rule FORK {
+     BRANCH {size 0.5 rotate -20}
+     BRANCH { }
+}
+rule FORK {
+     BRANCH {size 0.7 y 0.1 rotate 20}
+     BRANCH {size 0.7 y 0.1 rotate -20}
+}	
+</textarea>
+
+<pre>
+// The above image is created from the following code (reload the page to see it refresh).
+// Everything is done locally in Javascript
+
+</pre>
+<pre id="theCode"></pre>
+<script>
+	var theId = "inputC";
+	document.getElementById("theCode").innerHTML = document.getElementById(theId).value;
+
+	var t = new Tokenizer();
+	var tokens = t.tokenize( theId );
+	console.log( tokens );
+
+	var c = new Compiler();
+	var compiled = c.compile( tokens );
+	console.log( compiled );
+	
+	var r = new Renderer( "canvas" );
+	r.render( compiled );
+</script>
+
+</body>
+</html>
