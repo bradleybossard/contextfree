@@ -50,6 +50,16 @@ rule QUAD 0.5 {
 </textarea>	
 
 <textarea id="inputC" style="width:400px;height:400px">
+startshape rect
+
+rule rect{
+	SQUARE{}
+	rect{ s .5 x .75}
+}
+
+</textarea>
+
+<textarea id="inputD" style="width:400px;height:400px">
 startshape S
 
 rule S {
@@ -102,23 +112,90 @@ fract { x .25 y -.144 s .5 b 1}
 rule fract .5 {}
 </textarea>
 
-<textarea id="input3" style="width:400px;height:400px">
-startshape forest
+<textarea id="simple2">
+startshape B
 
-rule forest { 
-   tree { }
-   forest { z -1 s .7 y .7 x -1.5 b .1}
-   forest { z -1 s .7 y .7 x 1.5 b .1}
+rule B
+{
+  A {}
+  A {r 60}
+ }
+
+rule A
+{
+  CIRCLE {s 1 .01}
 }
-rule tree {
-    CIRCLE { s .5 1.2 }
-    tree { s .97 y .3 r 3}
+</textarea>	
+
+<textarea id="simple">
+	startshape starter
+
+	rule starter{
+	 snakeparty{ s .2 x -.5}
+	}
+
+	rule snakeparty {
+	 snake { }
+	 snakeparty {y 1.0 s 0.95 r -15}
+	}
+
+	rule snakeeye {
+	  CIRCLE {b 1}
+	  CIRCLE {b -1 s 0.4 x -0.35}
+	}
+
+	rule snake {
+	 snaketail { }
+	 snakeeye {s 0.4 x -0.2 y 0.2}
+	 snakemouth {x -0.5 y -0.2 s 0.3}
+	}
+
+	rule snaketail {
+	 CIRCLE{}
+	 SQUARE {x 0.32 y 0.1 s 0.5 r -30}
+	 SQUARE {x 0.32 y -0.1 s 0.5 r 30}
+	 snaketail {x 0.8 s 0.7}
+	}
+
+	rule snakemouth {
+	 SQUARE {b 1 r 65}
+	}
+
+</textarea>
+
+<textarea id="snake" style="width:400px;height:400px">
+startshape snakeparty
+
+rule starter{
+ snakeparty{ s .2 }
 }
-rule tree .1 { 
-    tree { flip 90 } }
-rule tree .1 { 
-    tree { r 10 } 
-    tree { r -30 s .6} }
+rule snakeparty {
+ snake { }
+ snakeparty {y 1.0 s 0.95 r -15}
+}
+
+rule snakeeye {
+  CIRCLE {b 1}
+  CIRCLE {b -1 s 0.4 x -0.35}
+}
+
+rule snake {
+ snaketail { }
+ snakeeye {s 0.4 x -0.2 y 0.2}
+ snakemouth {x -0.5 y -0.2 s 0.3}
+}
+
+rule snaketail {
+ CIRCLE {} 
+ SQUARE {x 0.32 y 0.1 s 0.5 r -30}
+ SQUARE {x 0.32 y -0.1 s 0.5 r 30}
+ snaketail {x 0.8 s 0.7}
+}
+
+rule snakemouth {
+ SQUARE {b 1 r 65}
+}
+
 </textarea>
 
 <textarea id="tree" style="width:400px;height:400px">
@@ -222,7 +299,7 @@ rule FORK {
 </pre>
 <pre id="theCode"></pre>
 <script>
-	var theId = "inputC";
+	var theId = "simple";
 	document.getElementById("theCode").innerHTML = document.getElementById(theId).value;
 
 	var t = new Tokenizer();

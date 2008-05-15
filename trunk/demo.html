@@ -51,6 +51,7 @@ startshape starter
 rule starter{
  snakeparty{ s .2 }
 }
+
 rule snakeparty {
  snake { }
  snakeparty {y 1.0 s 0.95 r -15}
@@ -194,15 +195,127 @@ rule A
 startshape arbolSizer
 
 rule arbolSizer{
-	arbol{ s .08 y -1 }
+  arbol{ s .08 y -1 }
 } 
 
-rule arbol { linea{} arbol {y 1.5 s .99 r 5} }
-rule arbol { linea{} arbol {y 1.5 s .99 r -5} }
-rule arbol .4 {  circulo {}  arbol {y 1 x -1 r 10 s .8 } 
-arbol {y 1 x 1 r -10 s .8 } }
-rule linea { SQUARE {s .2 1} }
-rule circulo { CIRCLE {} CIRCLE {s .8 b 1 } }
+rule arbol {
+  linea{} arbol {y 1.5 s .99 r 5}
+}
+
+rule arbol {
+  linea{} arbol {y 1.5 s .99 r -5}
+}
+
+rule arbol .4 {
+  circulo {}
+  arbol {y 1 x -1 r 10 s .8 } 
+  arbol {y 1 x 1 r -10 s .8 }
+}
+
+rule linea {
+  SQUARE {s .2 1}
+}
+
+rule circulo {
+  CIRCLE {}
+  CIRCLE {s .8 b 1 }
+}
+</textarea>	
+
+
+
+<textarea id="ancientmap" ondblclick="render(this);">
+startshape scaler
+
+background { b -.1 sat 0.25 hue 44 }
+
+rule scaler{
+	ANCIENTMAP{ s .06 }
+}
+
+rule ANCIENTMAP {
+    WALL1 {b 0.1 hue 34}
+    WALL1 {b 0.1 r 180 hue 34}
+}
+
+rule WALL1 {
+    WALL1{y 0.95 r 1 s 0.975}
+}
+
+rule WALL1 {
+    SQUARE {}
+    WALL1{y 0.95 r -1 s 0.975 sat 0.1 b .01 hue .1}
+}
+
+rule WALL1 0.09 {
+    SQUARE {}
+    WALL1{y 0.95 r 90 s 0.975}
+    WALL1{y 0.95 r -90 s 0.975}
+}
+
+rule WALL1 0.005 {
+    WALL1{y 0.97 r 90 s 1.5}
+    WALL1{y 0.97 r -90 s 1.5}
+}
+</textarea>
+
+<textarea id="alpha_trails" ondblclick="render(this);">
+background {b -.5}
+
+startshape CHIAROSCURO
+
+rule CHIAROSCURO {
+    BLACK {b .5}
+}
+
+rule BLACK 60 {
+    CIRCLE {s .6}
+    BLACK {x .1 r 5 s .99 b -.01 a -.01}
+}
+rule BLACK {
+    WHITE {}
+    BLACK {}
+}
+
+rule WHITE 60 {
+    CIRCLE {s .6}
+    WHITE {x .1 r -5 s .99 b .01 a -.01}
+}
+rule WHITE {
+    BLACK {}
+    WHITE {}
+}
+</textarea>	
+
+<textarea id="flower" ondblclick="render(this);">
+startshape D
+
+rule D
+{
+  C {r 15}
+  C {r 45}
+}
+rule C
+{
+  B {}
+  B {f -90}
+}
+
+rule B
+{
+  A {}
+  A {r 60}
+  A { r 120 }
+  A { r 180 }
+  A { r 240 }
+  A { r 300 }
+}
+
+rule A
+{
+  CIRCLE {s 1 .0006}
+  A {x .9 r 120.21 s .99 b .0005 }
+}
 </textarea>	
 </body>
 </html>

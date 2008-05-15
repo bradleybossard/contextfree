@@ -336,11 +336,14 @@ function Color( h, s, b, a ){
 	}
 }
 
-function getIdentityTransformation(){
+function IdentityTransformation(){
 	// 3x3 Matrix. This is the identity affine transformation.
 	return [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
 }
 
+function toAffineTransformation( a, b, c, d, x, y ){
+	return [ [a,b,x], [c,d,y], [0,0,1] ];
+}
 
 
 // Inner product of two verctors
@@ -379,44 +382,59 @@ function Renderer( canvasId ){
 	
 	this._depth = 0;
 	
-	
-	this._transforms = [];
-	this._pushTransform = function( transform ) { this._transforms.push( transform ); }
-	this._popTransform = function(){ return this._transforms.pop(); }
+	this.setTransform = function( trans ){
+		// Set the transform to the identity.
+		ctx.setTransform( 1, 0, 0, 1, 0, 0 );
+		
+		// Globally center and scale the transform (often the pictures are too small)
+		ctx.translate( width/2, height/2 );
+		ctx.scale( 300, 300 );
+		
+		// Perform the actual transformation.
+		ctx.transform( trans[0][0], trans[1][0], trans[0][1], trans[1][1], trans[0][2], trans[1][2] );		
+	}
 	
 
-	this.adjustCanvas = function( adjs ){
+	this.adjustTransform = function( adjs, transform, fix ){
+		// Tranalsation
 		var x = typeof(adjs.x) != "undefined" ? adjs.x : 0;
 		var y = typeof(adjs.y) != "undefined" ? -adjs.y : 0;
 		
-		ctx.transform( 1, 0, 0, 1, x, y );
-		
+		if( x != 0 || y != 0 ){
+			var translate = toAffineTransformation(1, 0, 0, 1, x, y);
+			transform = compose( transform, translate );
+		}
+
+		// Rotation
+		var r = adjs.r || adjs.rotate || "undefined";
+		if( r != "undefined"){
+			var cosTheta = Math.cos( -2*Math.PI * r/360 );
+			var sinTheta = Math.sin( -2*Math.PI * r/360 );
+			var rotate = toAffineTransformation( cosTheta, -sinTheta, sinTheta, cosTheta, 0, 0 );
+			transform = compose( transform, rotate );
+		}
+				
+		// Scaling
 		var s = adjs.s || adjs.size || "undefined";
 		if( s == "undefined" ){ s = 1; }
-		
-		if( typeof(s) == "number" ){
-			s = [s,s];
-		}
+		if( typeof(s) == "number" ){ s = [s,s]; }
 		
 		if( s != 1 ){
-			ctx.transform( s[0], 0, 0, s[1], 0, 0 );
-		}
-		
-		var r = adjs.r || adjs.rotate || "undefined";
-		if( r == "undefined" ){ r = 0; }
-		if( r != 0){
-			var cosTheta = Math.cos( 2*Math.PI * r/360 );
-			var sinTheta = Math.sin( 2*Math.PI * r/360 );
-			ctx.transform( cosTheta, -sinTheta, sinTheta, cosTheta, 0, 0 );
-		}
-		
+			var scale = toAffineTransformation(s[0], 0, 0, s[1], 0, 0 );
+			transform = compose( transform, scale );
+		}						
+				
+		// Flip around a line through the origin;
 		var f = adjs.f || adjs.flip;
 		if( f ){
 			vX = Math.sin( 2*Math.PI * f/360 );
 			vY = Math.cos( 2*Math.PI * f/360 );
 			norm = 1/(vX*vX + vY*vY);
-			ctx.transform( (vX*vX-vY*vY)/norm, 2*vX*vY/norm, 2*vX*vY/norm, (vY*vY-vX*vX)/norm, 0, 0);
+			var flip = toAffineTransformation((vX*vX-vY*vY)/norm, 2*vX*vY/norm, 2*vX*vY/norm, (vY*vY-vX*vX)/norm, 0, 0);
+			transform = compose( transform, flip );
 		}
+		
+		return transform;
 		
 	}
 	
@@ -432,44 +450,49 @@ function Renderer( canvasId ){
 	
 	this.draw = function() {
 		var ruleName = this.compiled.startshape;
-		this.drawRule( ruleName );
+		var ident = IdentityTransformation();
+		this.drawRule( ruleName, ident );
 	}
 	
-	this.drawShape = function( shape ){
+	this.drawShape = function( shape, transform ){
 		for each( item in shape.draw ){
 			var color = new Color( 0, 0, 0, 1 ).adjust( item );
-			ctx.save();
+			
 			switch( item.shape ){
 				case "CIRCLE":
-					this.adjustCanvas( item );
+					var localTransform = this.adjustTransform( item, transform, 1 );
+					this.setTransform( localTransform );
+					
 					ctx.beginPath();
 					ctx.fillStyle = color.toRgba();
 					ctx.arc( 0, 0, .5, 0, 2*Math.PI, true )
 					ctx.fill();
 					break;
 				case "SQUARE":
-					this.adjustCanvas( item );				
+					var localTransform = this.adjustTransform( item, transform, 1 );
+					this.setTransform( localTransform );
+										
 					ctx.beginPath();
 					ctx.fillStyle = color.toRgba();
 					ctx.fillRect(-.5, -.5, 1, 1);
 					break;
-				default:
-					ctx.save();
-					this.adjustCanvas( item );
-					this._depth += 1;
-					this.drawRule( item.shape );
+				default:					
+					var localTransform = this.adjustTransform( item, transform, 0 );
+
+					this._depth += 1;					
+					this.drawRule( item.shape, localTransform );
 					this._depth -= 1;
-					ctx.restore();
+					
 					break;
-			}
-			ctx.restore();
+			}			
 		}
 	}
 	
-	this.drawRule = function( ruleName ){
+	this.drawRule = function( ruleName, transform ){
 		
-		//console.log( ruleName, this._depth );
-		if( this._depth > 10 ){
+		// When things get too small, we can stop rendering.
+		//if( transform[0][0] < .0002 || transform[1][1] < .0002 ){
+		if( this._depth > 20){
 			return;
 		}
 		
@@ -492,16 +515,13 @@ function Renderer( canvasId ){
 			}
 		}
 		
-		this.drawShape( shape );
+		this.drawShape( shape, transform );
 	}
 	
 	this.render = function( compiled ) {
 		this.compiled = compiled;
 		
-
 		this.drawBackground();	
-		ctx.translate( width/2, height/2 );
-		ctx.scale( 300, 300 );
 		this.draw();
 		
 	}
