@@ -1,7 +1,11 @@
 <html>
 	<head>
 	  <title>ContextFree.js</title>
-		<style> textarea {display: none;} #choose{ float:right; } code{ font-weight: bold; } </style>
+		<style>
+		  textarea {display: none;} #choose{ float:right; } code{ font-weight: bold; }
+		  .background{ width: 100%; background-color: #cacaca; position: absolute; left: 0px; padding-top: 5px; border-top: 1px solid #666;}
+		  .padding{ padding: 20px; }
+	  </style>
 	  
 		<script src="contextfree.js"></script>
 		<script src="jquery.js"></script>
@@ -55,6 +59,8 @@
 <body>
   <div id="canvasContainer" style="width:1200px;height:1000px;"></div>
 
+<div class="background">
+  <div class="padding">
 <div id="choose"><code>Choose a program:</code><br/><select id="menu" multiple="multiple"> </select></div>
 
 <pre>
@@ -64,7 +70,9 @@
 </pre>
 <input type="button" value="Redraw" onclick="drawChoice();"/> <code>(You can also use Command-R)</code>
 <br/>
-<pre id="theCode"></pre>  
+<pre id="theCode"></pre>
+</div>
+</div>
 
 <textarea id="squares and circles" style="width:400px;height:400px">
 startshape scale
