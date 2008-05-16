@@ -383,6 +383,8 @@ Renderer = {
 	
 	compiled: null,
 	
+	_threadCount: 0,
+	
 	render: function( compiled, canvasId ) {
 		Renderer.compiled = compiled;
 		
@@ -413,9 +415,9 @@ Renderer = {
 	},
 	
 	drawRule: function( ruleName, transform, color ){
-	  //console.log( ruleName, transform );
 		// When things get too small, we can stop rendering.
-		if( transform[0][0] * 300 <= 1 && transform[1][1] * 300 <= 1 ){
+		// Too small, in this case, means less than half a pixel.
+		if( Math.abs(transform[0][1])*300 < .5 && Math.abs(transform[1][1])*300 < .5 ){
 			return;
 		}
 		
@@ -455,6 +457,7 @@ Renderer = {
 					Renderer.ctx.fillStyle = colorToRgba( newColor );
 					Renderer.ctx.arc( 0, 0, .5, 0, 2*Math.PI, true )
 					Renderer.ctx.fill();
+					Renderer.ctx.closePath();
 					break;
 					
 				case "SQUARE":
@@ -466,8 +469,26 @@ Renderer = {
 					Renderer.ctx.beginPath();
 					Renderer.ctx.fillStyle = colorToRgba( newColor );
 					Renderer.ctx.fillRect(-.5, -.5, 1, 1);
+					Renderer.ctx.closePath();
 					break;
-					
+				
+				case "TRIANGLE":
+					var localTransform = Renderer.adjustTransform( item, transform );
+					Renderer.setTransform( localTransform );
+
+					var newColor = adjustColor( color, item );
+
+					Renderer.ctx.beginPath();
+					var scale = 0.57735; // Scales the side of the triagle down to unit length.
+					Renderer.ctx.moveTo( 0, -scale );
+					for( var i=1; i<=3; i++ ){
+					  Renderer.ctx.lineTo( scale*Math.sin( i*2*Math.PI/3 ), -scale*Math.cos( i*2*Math.PI/3 ) );
+					}
+					Renderer.ctx.fillStyle = colorToRgba( newColor );
+					Renderer.ctx.fill();
+					Renderer.ctx.closePath();
+					break;
+										
 				default:
 
 				  var newColor = adjustColor( color, item );
@@ -480,8 +501,7 @@ Renderer = {
 				  }
 				  
 				  var tD = new threadedDraw( item.shape, localTransform, newColor );
-				  //tD.start();
-					setTimeout( tD.start, 1 );
+					setTimeout( tD.start, 10 );
 					
 					break;
 			}			
@@ -533,9 +553,11 @@ Renderer = {
 				
 		// Flip around a line through the origin;
 		var f = adjs.f || adjs.flip;
-		if( f ){
-			vX = Math.sin( 2*Math.PI * f/360 );
-			vY = Math.cos( 2*Math.PI * f/360 );
+		if( typeof(f) != "undefined" ){
+		  // Flip 0 means to flip along the X axis. Flip 90 means to flip along the Y axis.
+		  // That's why the flip vector (vX, vY) is Pi/2 radians further along than expected. 
+			vX = Math.cos( -2*Math.PI * f/360 );
+			vY = Math.sin( -2*Math.PI * f/360 );
 			norm = 1/(vX*vX + vY*vY);
 			var flip = toAffineTransformation((vX*vX-vY*vY)/norm, 2*vX*vY/norm, 2*vX*vY/norm, (vY*vY-vX*vX)/norm, 0, 0);
 			transform = compose( transform, flip );
