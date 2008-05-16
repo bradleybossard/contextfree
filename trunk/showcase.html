@@ -1,7 +1,7 @@
 <html>
 	<head>
 	  <title>ContextFree.js</title>
-		<style> textarea {display: none;} </style>
+		<style> textarea {display: none;} #choose{ float:right; } code{ font-weight: bold; } </style>
 	  
 		<script src="contextfree.js"></script>
 		<script src="jquery.js"></script>
@@ -34,7 +34,6 @@
       var toDisplay = $("#menu option:selected" ).text();
       location.assign( "#"+toDisplay );
       location.reload();
-      //display( toDisplay );
     }
     
     function populateMenu( selected ){
@@ -43,7 +42,6 @@
         $(option)
             .attr( "value", this.id )
             .text( this.id )
-            .mouseup( drawChoice );
         if( this.id == selected ){
           $(option).attr("selected","true");
         }
@@ -57,14 +55,15 @@
 <body>
   <div id="canvasContainer" style="width:1200px;height:1000px;"></div>
 
-<select id="menu"> </select> <input type="button" value="Redraw" onclick="drawChoice();"/>
+<div id="choose"><code>Choose a program:</code><br/><select id="menu" multiple="multiple"> </select></div>
 
 <pre>
 // The above image is created from the following code (reload the page to see it refresh).
 // Everything is done in Javascript, right in the browser! Works in Firefox 3, Safari Beta, and Opera 9.5.
-// ContextFree.js was written by Aza.
-
+// ContextFree.js by Aza Raskin.
 </pre>
+<input type="button" value="Redraw" onclick="drawChoice();"/> <code>(You can also use Command-R)</code>
+<br/>
 <pre id="theCode"></pre>  
 
 <textarea id="squares and circles" style="width:400px;height:400px">
@@ -909,73 +908,73 @@ rule burbuja 0.8 { burbuja_fin {} }
 </textarea>
 
 <textarea id="Yoko's Flower">
-  startshape scale
-  background {h 50 sat .5 b -.5}
+startshape scale
+background {h 50 sat .5 b -.5}
 
-  rule scale{ START{ s .04 y -1 }}
+rule scale{ START{ s .04 y -1 }}
 
-  rule START {
-  BRANCH { hue 20 sat 0.8 b 0.8 }
-  BRANCH { flip 90 hue 20 sat 0.8 b 0.8 }
-  }
+rule START {
+BRANCH { hue 20 sat 0.8 b 0.8 }
+BRANCH { flip 90 hue 20 sat 0.8 b 0.8 }
+}
 
-  rule BRANCH {
-  SQUARE { }
-  BRANCH { y 1 s 0.99 r 0.6 }
-  }
+rule BRANCH {
+SQUARE { }
+BRANCH { y 1 s 0.99 r 0.6 }
+}
 
-  rule BRANCH 0.03 {
-  BRANCH { flip 90 }
-  }
+rule BRANCH 0.03 {
+BRANCH { flip 90 }
+}
 
-  rule BRANCH 0.01 {
-  BRANCH { r 15 s 0.99 }
-  BRANCH { r -15 s 0.99 }
-  }
+rule BRANCH 0.01 {
+BRANCH { r 15 s 0.99 }
+BRANCH { r -15 s 0.99 }
+}
 
-  rule BRANCH 0.01 {
-  FULL_FLOWER { s 0.5 }
-  }
+rule BRANCH 0.01 {
+FULL_FLOWER { s 0.5 }
+}
 
-  rule FULL_FLOWER {
-  FLOWER { hue 10 sat 0.8 b 0.8}
-  FULL_FLOWER { s 0.7 r 27.8 hue 5 alpha -0.1}
-  }
+rule FULL_FLOWER {
+FLOWER { hue 10 sat 0.8 b 0.8}
+FULL_FLOWER { s 0.7 r 27.8 hue 5 alpha -0.1}
+}
 
-  rule CURVE_I {
-  SHAPE { }
-  CURVE_I { y 1 r 1.5 s 0.99 alpha -0.01}
-  }
+rule CURVE_I {
+SHAPE { }
+CURVE_I { y 1 r 1.5 s 0.99 alpha -0.01}
+}
 
-  rule CURVE_D {
-  SHAPE { }
-  CURVE_D { y 1 r -1.5 s 0.99 alpha -0.01}
-  }
+rule CURVE_D {
+SHAPE { }
+CURVE_D { y 1 r -1.5 s 0.99 alpha -0.01}
+}
 
-  rule FLOWER {
-  CURVE_I { }
-  CURVE_I { r 72 }
-  CURVE_I { r 144}
-  CURVE_I { r -72 }
-  CURVE_I { r -144 }
+rule FLOWER {
+CURVE_I { }
+CURVE_I { r 72 }
+CURVE_I { r 144}
+CURVE_I { r -72 }
+CURVE_I { r -144 }
 
-  CURVE_D { }
-  CURVE_D { r 72 }
-  CURVE_D { r 144 }
-  CURVE_D { r -72}
-  CURVE_D { r -144}
-  }
+CURVE_D { }
+CURVE_D { r 72 }
+CURVE_D { r 144 }
+CURVE_D { r -72}
+CURVE_D { r -144}
+}
 
-  rule SHAPE { SQUARE { } }
-  rule SHAPE 0.01 {
-  SQUARE { }
-  CIRCLE { s 2 6 alpha -0.2 }
-  }
+rule SHAPE { SQUARE { } }
+rule SHAPE 0.01 {
+SQUARE { }
+CIRCLE { s 2 6 alpha -0.2 }
+}
 
-  rule SHAPE 0.01 {
-  SQUARE { }
-  CURVE_I { s 0.5 }
-  }
+rule SHAPE 0.01 {
+SQUARE { }
+CURVE_I { s 0.5 }
+}
 </textarea>  
 
 <script>
@@ -983,6 +982,7 @@ if( location.hash ){ var theId = location.hash.substring(1) }
 else{ var theId = "i ching"; }
 populateMenu( theId );
 display( theId );
+$("#menu").change( drawChoice );
 </script>
 
 </body>
