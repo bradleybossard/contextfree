@@ -497,7 +497,7 @@ rule LINES {
 
 rule LINE 1000 {
 	CIRCLE { }
-	LINE { y 0.1 }
+	LINE { y .   }
 }
 // turns
 rule LINE 1 { LINE { rotate 45 } }
@@ -514,13 +514,11 @@ rule LINE 4 {
 	LINE { }
 }
 
-// interchange
 rule LINE 0.5 {
 	LINE { }
 	ROUTE { rotate 90 }
 }
 
-// terminus
 rule LINE 1 {
 	CIRCLE { size 3 }
 	CIRCLE { size 1
@@ -670,6 +668,7 @@ rule WHEEL {
 
 <textarea id="i ching">
   startshape scale
+  background {h 150 sat .5 b -.5}  
   
   rule scale{ I_CHING{ s .5 x -1} }
 
@@ -908,6 +907,76 @@ burbuja {s 0.001}
 }
 rule burbuja 0.8 { burbuja_fin {} }
 </textarea>
+
+<textarea id="Yoko's Flower">
+  startshape scale
+  background {h 50 sat .5 b -.5}
+
+  rule scale{ START{ s .04 y -1 }}
+
+  rule START {
+  BRANCH { hue 20 sat 0.8 b 0.8 }
+  BRANCH { flip 90 hue 20 sat 0.8 b 0.8 }
+  }
+
+  rule BRANCH {
+  SQUARE { }
+  BRANCH { y 1 s 0.99 r 0.6 }
+  }
+
+  rule BRANCH 0.03 {
+  BRANCH { flip 90 }
+  }
+
+  rule BRANCH 0.01 {
+  BRANCH { r 15 s 0.99 }
+  BRANCH { r -15 s 0.99 }
+  }
+
+  rule BRANCH 0.01 {
+  FULL_FLOWER { s 0.5 }
+  }
+
+  rule FULL_FLOWER {
+  FLOWER { hue 10 sat 0.8 b 0.8}
+  FULL_FLOWER { s 0.7 r 27.8 hue 5 alpha -0.1}
+  }
+
+  rule CURVE_I {
+  SHAPE { }
+  CURVE_I { y 1 r 1.5 s 0.99 alpha -0.01}
+  }
+
+  rule CURVE_D {
+  SHAPE { }
+  CURVE_D { y 1 r -1.5 s 0.99 alpha -0.01}
+  }
+
+  rule FLOWER {
+  CURVE_I { }
+  CURVE_I { r 72 }
+  CURVE_I { r 144}
+  CURVE_I { r -72 }
+  CURVE_I { r -144 }
+
+  CURVE_D { }
+  CURVE_D { r 72 }
+  CURVE_D { r 144 }
+  CURVE_D { r -72}
+  CURVE_D { r -144}
+  }
+
+  rule SHAPE { SQUARE { } }
+  rule SHAPE 0.01 {
+  SQUARE { }
+  CIRCLE { s 2 6 alpha -0.2 }
+  }
+
+  rule SHAPE 0.01 {
+  SQUARE { }
+  CURVE_I { s 0.5 }
+  }
+</textarea>  
 
 <script>
 if( location.hash ){ var theId = location.hash.substring(1) }
