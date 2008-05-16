@@ -32,8 +32,9 @@
     
     function drawChoice(){
       var toDisplay = $("#menu option:selected" ).text();
-      location.replace( "#"+toDisplay )
-      display( toDisplay );
+      location.assign( "#"+toDisplay );
+      location.reload();
+      //display( toDisplay );
     }
     
     function populateMenu( selected ){
