@@ -1,18 +1,78 @@
 <html>
-<head>
-<script src="contextfree.js"></script>
-<style>
-textarea {display: none;}
-</style>
-</head>
+	<head>
+	  <title>ContextFree.js</title>
+		<style> textarea {display: none;} </style>
+	  
+		<script src="contextfree.js"></script>
+		<script src="jquery.js"></script>
+		
+		<script>
+    function display( id ){
+      var theId = id;
+    	document.getElementById("theCode").innerHTML = document.getElementById(theId).value;
+
+    	var t = new Tokenizer();
+    	var tokens = t.tokenize( theId );
+
+    	var c = new Compiler();
+    	var compiled = c.compile( tokens );
+
+      var canvas = document.createElement( "canvas" );
+      var container = $("#canvasContainer");
+      canvas.width = container.width();
+      canvas.height = container.height();
+      canvas.id = "canvas";
+    
+      $(container).find("canvas").remove();
+      $(container).append( canvas );
+
+    	var r = Renderer;
+    	r.render( compiled, "canvas" );
+    }
+    
+    function drawChoice(){
+      var toDisplay = $("#menu option:selected" ).text();
+      location.replace( "#"+toDisplay )
+      display( toDisplay );
+    }
+    
+    function populateMenu( selected ){
+      $("textarea").each( function() {
+        var option = document.createElement("option");
+        $(option)
+            .attr( "value", this.id )
+            .text( this.id )
+            .mouseup( drawChoice );
+        if( this.id == selected ){
+          $(option).attr("selected","true");
+        }
+        $("#menu").append( option );
+      });
+    }
+		</script>
+
+  </head>
 
 <body>
-<canvas id="canvas" width="1000" height="1000"></canvas>
-<br/>
+  <div id="canvasContainer" style="width:1200px;height:1000px;"></div>
 
-<textarea id="input0" style="width:400px;height:400px">
-startshape c
-background{ }
+<select id="menu"> </select> <input type="button" value="Redraw" onclick="drawChoice();"/>
+
+<pre>
+// The above image is created from the following code (reload the page to see it refresh).
+// Everything is done in Javascript, right in the browser! Works in Firefox 3, Safari Beta, and Opera 9.5.
+// ContextFree.js was written by Aza.
+
+</pre>
+<pre id="theCode"></pre>  
+
+<textarea id="squares and circles" style="width:400px;height:400px">
+startshape scale
+background{ b -1 }
+
+rule scale{
+  c{ s .8 b 1 }
+}
 
 rule c {
 	SQUARE{ r 3 }
@@ -20,15 +80,21 @@ rule c {
 	CIRCLE{ x 1 s .5 }
 	CIRCLE{ x -1 }	
 	SQUARE{ y -3 s 1.2 r 45}
-	c { x -2 s .5 }		
+	c { x -2 s .5 r 5 }		
 }
 
 rule c .3 {
 	CIRCLE{ }
 }
+
+rule c .2 {
+	c{ rotate -10 s .1}
+}
+
+
 </textarea>
 
-<textarea id="inputF" style="width:400px;height:400px">
+<textarea id="square fractal" style="width:400px;height:400px">
 startshape WHOLE
 background{ b -1 }
 
@@ -40,26 +106,17 @@ rule WHOLE {
 }
 
 rule QUAD {
-	SQUARE { size 0.8 b 1}
+	SQUARE { s 0.8 b 1}
 }
 rule QUAD 5 {
-	WHOLE { size 0.45 r 2 }
+	WHOLE { s 0.45 r 2 }
 }
 rule QUAD 0.5 {
 }
 </textarea>	
 
-<textarea id="inputC" style="width:400px;height:400px">
-startshape rect
 
-rule rect{
-	SQUARE{}
-	rect{ s .5 x .75}
-}
-
-</textarea>
-
-<textarea id="inputD" style="width:400px;height:400px">
+<textarea id="circle fractal" style="width:400px;height:400px">
 startshape starter
 background{ b -1 }
 
@@ -73,13 +130,13 @@ rule center {
 }
 
 rule wings {
-  center{ x .75 s .5 b -.01 }	
-  center{ x -.75 s .5 b -.01 }
+  center{ x .75 s .5 b -.2 r 3}	
+  center{ x -.75 s .5 b -.2 r -5}
 }
 
 rule wings {
-  center{ y .75 s .5 b -.01 }	
-  center{ y -.75 s .5 b -.01 }
+  center{ y .75 s .5 b -.2 r 2}	
+  center{ y -.75 s .5 b -.2 r -2}
 }
 
 
@@ -87,92 +144,31 @@ rule wings {
 
 
 
+<textarea id="triangle fractal" style="width:400px;height:400px">
+startshape scale
 
-<textarea id="input1" style="width:400px;height:400px">
-startshape aza
-background{ b -.5 hue 42 sat .3 }
-
-rule aza {
-  CIRCLE{ b -.5 h 200 a .3 s .5}
+rule scale{
+	fract{ s 3 }
 }
 
-rule aza .5{
-  SQUARE{ b -.5 h 100 s .5 }
-}
-
-</textarea>
-
-
-<textarea id="input2" style="width:400px;height:400px">
-startshape fract
-
-rule fract {
-TRIANGLE { }
-fract { y .288 s .5 b 1}
-fract { s .5 r 180 b -1 }
-fract { x -.25 y -.144 s .5 b 1}
-fract { x .25 y -.144 s .5 b 1}
+rule fract {	
+	TRIANGLE { }
+	fract { y .288 s .5 b 1}
+	fract { s .5 r 180 b -1 }
+	fract { x -.25 y -.144 s .5 b 1}
+	fract { x .25 y -.144 s .5 b 1}
 }
 rule fract .5 {}
 </textarea>
 
-<textarea id="simple2">
-startshape B
 
-rule B
-{
-  A {}
-  A {r 60}
- }
-
-rule A
-{
-  CIRCLE {s 1 .01}
-}
-</textarea>	
-
-<textarea id="simple">
-	startshape starter
-
-	rule starter{
-	 snakeparty{ s .2 x -.5}
-	}
-
-	rule snakeparty {
-	 snake { }
-	 snakeparty {y 1.0 s 0.95 r -15}
-	}
-
-	rule snakeeye {
-	  CIRCLE {b 1}
-	  CIRCLE {b -1 s 0.4 x -0.35}
-	}
-
-	rule snake {
-	 snaketail { }
-	 snakeeye {s 0.4 x -0.2 y 0.2}
-	 snakemouth {x -0.5 y -0.2 s 0.3}
-	}
-
-	rule snaketail {
-	 CIRCLE{}
-	 SQUARE {x 0.32 y 0.1 s 0.5 r -30}
-	 SQUARE {x 0.32 y -0.1 s 0.5 r 30}
-	 snaketail {x 0.8 s 0.7}
-	}
-
-	rule snakemouth {
-	 SQUARE {b 1 r 65}
-	}
-
-</textarea>
-
-<textarea id="snake" style="width:400px;height:400px">
-startshape snakeparty
+<textarea id="snakes">
+startshape starter
 
 rule starter{
- snakeparty{ s .2 }
+ snakeparty{ s .5 x -1 y -.5}
 }
+
 rule snakeparty {
  snake { }
  snakeparty {y 1.0 s 0.95 r -15}
@@ -190,7 +186,7 @@ rule snake {
 }
 
 rule snaketail {
- CIRCLE {} 
+ CIRCLE{}
  SQUARE {x 0.32 y 0.1 s 0.5 r -30}
  SQUARE {x 0.32 y -0.1 s 0.5 r 30}
  snaketail {x 0.8 s 0.7}
@@ -202,26 +198,17 @@ rule snakemouth {
 
 </textarea>
 
-<textarea id="tree" style="width:400px;height:400px">
-startshape tree
 
-rule tree {
-    CIRCLE { s .5 1.2 }
-    tree { s .97 y .3 r 3}
+<textarea id="gray dotted tree" style="width:400px;height:400px">
+startshape scale
+
+rule scale{
+  SEED1 { s .03 y -1}
 }
-rule tree .1 { 
-    tree { flip 90 } }
-rule tree .5 { 
-    tree { r 10 } 
-    tree { r -30 s .6} }
-</textarea>
-
-<textarea id="input4" style="width:400px;height:400px">
-startshape SEED1
  
 rule SEED1 {
  SQUARE{}
- SEED1 {y 1.2 size 0.99 rotate 1.5 brightness 0.03}
+ SEED1 {y 1.2 s 0.99 rotate 1.5 brightness 0.03}
 }
  
 rule SEED1 0.05 {SEED1 {flip 90}}
@@ -234,21 +221,14 @@ rule SEED1 0.05 {
 }
 </textarea>
 
-<textarea id="input5" style="width:400px;height:400px">
-// CURRENTLY UNIMPLEMENTED
-startshape flower
-
-rule flower {
-    // petals
-    6*{ r 60 } CIRCLE [ r 30 x 0.5 s 1 0.25 ]
-    //center
-    CIRCLE { s 0.25 b 1 }
-}
-</textarea>
 
 
 <textarea id="forest">
-startshape FOREST
+startshape SCALE
+
+rule SCALE{
+	FOREST{ s .04 y -1 x .5 }
+}
 
 rule FOREST {
      SEED {}
@@ -266,9 +246,9 @@ rule SEED {FORK {}}
 rule BRANCH {LEFTBRANCH {flip 90}}
 rule BRANCH {LEFTBRANCH {}}
 
-rule LEFTBRANCH 4 {BLOCK {} LEFTBRANCH {y 0.885 rotate 0.1 size 0.99}}
-rule LEFTBRANCH 4 {BLOCK {} LEFTBRANCH {y 0.885 rotate 0.2 size 0.99}}
-rule LEFTBRANCH {BLOCK {} LEFTBRANCH {y 0.885 rotate 4 size 0.99}}
+rule LEFTBRANCH 4 {BLOCK {} LEFTBRANCH {y 0.885 rotate 0.1 s 0.99}}
+rule LEFTBRANCH 4 {BLOCK {} LEFTBRANCH {y 0.885 rotate 0.2 s 0.99}}
+rule LEFTBRANCH {BLOCK {} LEFTBRANCH {y 0.885 rotate 4 s 0.99}}
 rule LEFTBRANCH {BLOCK {} FORK {}}
 
 
@@ -280,42 +260,168 @@ rule BLOCK {
 
 rule FORK {
      BRANCH { }
-     BRANCH {size 0.5 rotate 40}
+     BRANCH {s 0.5 rotate 40}
 }
 rule FORK {
      BRANCH { }
-     BRANCH {size 0.5 rotate -40}
+     BRANCH {s 0.5 rotate -40}
 }
 rule FORK {
-     BRANCH {size 0.5 rotate -20}
+     BRANCH {s 0.5 rotate -20}
      BRANCH { }
 }
 rule FORK {
-     BRANCH {size 0.7 y 0.1 rotate 20}
-     BRANCH {size 0.7 y 0.1 rotate -20}
+     BRANCH {s 0.7 y 0.1 rotate 20}
+     BRANCH {s 0.7 y 0.1 rotate -20}
 }	
 </textarea>
 
-<pre>
-// The above image is created from the following code (reload the page to see it refresh).
-// Everything is done locally in Javascript
+<textarea id="mtree">
+startshape scale
 
-</pre>
-<pre id="theCode"></pre>
+rule scale{
+	PLANT { s .08 y -1.2 }
+}
+
+rule PLANT {
+	EITHER {x -2}
+	EITHER {x 2}
+}
+
+rule BOTH {
+	BL {rotate 30}
+	BL {rotate -30 flip 90}
+}
+
+rule EITHER {BL{}}
+rule EITHER {BL{flip 90}}
+
+rule BL {
+	CIRCLE {}
+	WL {s 0.95 y 1.6}
+}
+
+rule WL {BL {rotate 3}}
+rule WL {BL {rotate 4}}
+rule WL {BL {rotate 5}}
+rule WL {BL {rotate 6}}
+rule WL {BL {rotate 7}}
+rule WL {BL {rotate 3}}
+rule WL {BL {rotate 4}}
+rule WL {BL {rotate 5}}
+rule WL {BL {rotate 6}}
+rule WL {BL {rotate 7}}
+rule WL {BOTH {}}
+rule WL {BL {rotate -10 flip 90}}	
+</textarea>	
+
+<textarea id="tangle">
+startshape scale
+
+rule scale{ 
+	SPIKES{ s .03 }
+}
+
+rule SPIKES {
+	SPIKE {}
+	SPIKE { r 90 }
+	SPIKE { r 180 }
+	SPIKE { r 270 }
+}
+
+rule SPIKE {
+	LSPIKE {}
+}
+rule SPIKE {
+	LSPIKE { flip 90 }
+}
+
+rule LSPIKE {
+	SQUARE {}
+	LSPIKE { y 0.98 s 0.99 r 1}
+}
+rule LSPIKE 0.005 {
+	SPIKE { r 90 }
+	SPIKE { r -90 }
+	LSPIKE { y 0.98 s 0.99  r 1}
+}
+
+</textarea>	
+
+<textarea id="zig zag">
+startshape scale
+
+rule scale{
+	Trident{ s .08 y -1}
+} 
+
+rule Trident {
+	Zig { }
+	ZagL { x 0 b 0.02 flip 90}	
+	ZigL { x 0 b 0.02 }
+}
+
+rule Zig {
+	Seg { x -0.5 r -45 }
+	Zag { y 1 s 0.97 }
+}
+rule Zag {
+	Seg { x 0.5 r 45 }
+	Zig { y 1 s 0.97 }
+}
+
+rule ZigL {
+	Seg { x -0.5 r -45 }
+	ZagL { y 1 s 0.97 r 2 }
+}
+rule ZagL {
+	Seg { x 0.5 r 45 }
+	ZigL { y 1 s 0.97 r 2 }
+}
+
+rule ZigL 0.03 { Trident { } }
+
+rule Seg {
+	SQUARE { y 0.6925 s 0.5 1.885 }
+}
+</textarea>
+
+<textarea id="star">
+startshape D
+
+rule D
+{
+  C {r 15}
+  C {r 45}
+}
+rule C
+{
+  B {}
+  B {f -90}
+}
+
+rule B
+{
+  A {}
+  A {r 60}
+  A { r 120 }
+  A { r 180 }
+  A { r 240 }
+  A { r 300 }
+}
+
+rule A
+{
+  CIRCLE {s 1 .0006}
+  A {x .9 r 120.21 s .99 b .0005 }
+}
+</textarea>	
+
 <script>
-	var theId = "simple";
-	document.getElementById("theCode").innerHTML = document.getElementById(theId).value;
-
-	var t = new Tokenizer();
-	var tokens = t.tokenize( theId );
-	console.log( tokens );
-
-	var c = new Compiler();
-	var compiled = c.compile( tokens );
-	console.log( compiled );
-	
-	var r = Renderer;
-	r.render( compiled, "canvas" );
+if( location.hash ){ var theId = location.hash.substring(1) }
+else{ var theId = "star"; }
+populateMenu( theId );
+display( theId );
 </script>
 
 </body>
