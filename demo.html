@@ -30,8 +30,7 @@ function render( el ){
 	var compiled = c.compile( tokens );
 	console.log( compiled );
 	
-	var r = new Renderer( "canvas" );
-	r.render( compiled );	
+	Renderer.render( compiled, "canvas" );
 }
 
 </script>
