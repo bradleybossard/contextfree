@@ -12,7 +12,7 @@ textarea {display: none;}
 
 <textarea id="input0" style="width:400px;height:400px">
 startshape c
-background{ b -1 }
+background{ }
 
 rule c {
 	SQUARE{ r 3 }
@@ -40,7 +40,7 @@ rule WHOLE {
 }
 
 rule QUAD {
-	SQUARE { size 0.8 }
+	SQUARE { size 0.8 b 1}
 }
 rule QUAD 5 {
 	WHOLE { size 0.45 r 2 }
@@ -60,25 +60,29 @@ rule rect{
 </textarea>
 
 <textarea id="inputD" style="width:400px;height:400px">
-startshape S
+startshape starter
+background{ b -1 }
 
-rule S {
-  CIRCLE{}
-  C {}	
+rule starter{
+	center{ b 1 }
 }
 
-rule S .4{
-  C {}	
+rule center {
+  CIRCLE{ }
+  wings {}	
 }
 
-rule C {
-  S{ x -.75 s .5 }
-  S{ x .75 s .5 }	
-  S{ y -.75 s .5 }
-  S{ y  .75 s .5 }	
+rule wings {
+  center{ x .75 s .5 b -.01 }	
+  center{ x -.75 s .5 b -.01 }
 }
 
-rule C .05 { }
+rule wings {
+  center{ y .75 s .5 b -.01 }	
+  center{ y -.75 s .5 b -.01 }
+}
+
+
 </textarea>
 
 
@@ -93,7 +97,7 @@ rule aza {
 }
 
 rule aza .5{
-  TRIANGLE{ b -.5 h 100 s .5 }
+  SQUARE{ b -.5 h 100 s .5 }
 }
 
 </textarea>
@@ -310,8 +314,8 @@ rule FORK {
 	var compiled = c.compile( tokens );
 	console.log( compiled );
 	
-	var r = new Renderer( "canvas" );
-	r.render( compiled );
+	var r = Renderer;
+	r.render( compiled, "canvas" );
 </script>
 
 </body>

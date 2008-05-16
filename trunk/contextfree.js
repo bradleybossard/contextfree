@@ -300,41 +300,42 @@ function getCanvas(){
 	return canvas.getContext("2d");
 }
 
-function Color( h, s, b, a ){
-	this.h = typeof(h) != "undefined"? h: 0;
-	this.s = typeof(s) != "undefined"? s: 0;
-	this.b = typeof(b) != "undefined"? b: 1;
-	this.a = typeof(a) != "undefined"? a: 1;			
-	
-	this.adjust = function( adjustments ) {
-		// See http://www.contextfreeart.org/mediawiki/index.php/Shape_adjustments
-		
-		// Add num to the drawing hue value, modulo 360 
-		this.h += adjustments.h || adjustments.hue || 0;
-		this.h %= 360;
-		
-		var adj = {};
-		adj.s = adjustments.s || adjustments.sat || 0;
-		adj.b = adjustments.b || adjustments.brightness || 0;		
-		adj.a = adjustments.a || adjustments.alpha || 0;
-				
-		// If adj<0 then change the drawing [blah] adj% toward 0.
-		// If adj>0 then change the drawing [blah] adj% toward 1. 
-		for( var key in adj ) {
-			if( adj[key] > 0 ){
-				this[key] += adj[key] * (1-this[key]);
-			} else {
-				this[key] += adj[key] * this[key];
-			}
-		}
-				
-		return this;	
-	}
-	
-	this.toRgba = function(){
-		return hsl2rgb( this.h, this.s, this.b, this.a );
-	}
+
+function colorToRgba( color ){
+  return hsl2rgb( color.h, color.s, color.b, color.a );
 }
+
+
+function adjustColor( color, adjustments ) {
+	// See http://www.contextfreeart.org/mediawiki/index.php/Shape_adjustments
+		
+	var newColor = { h: color.h, s: color.s, b: color.b, a: color.a };
+	
+	// Add num to the drawing hue value, modulo 360 
+	newColor.h += adjustments.h || adjustments.hue || 0;
+	newColor.h %= 360;
+	
+	var adj = {};
+	adj.s = adjustments.sat || adjustments.saturation;
+	adj.b = adjustments.b || adjustments.brightness;		
+	adj.a = adjustments.a || adjustments.alpha;
+	if( typeof(adj.s) == "undefined" ){ adj.s = 0; }
+	if( typeof(adj.b) == "undefined" ){ adj.b = 0; }
+	if( typeof(adj.a) == "undefined" ){ adj.a = 0; }	
+			
+	// If adj<0 then change the drawing [blah] adj% toward 0.
+	// If adj>0 then change the drawing [blah] adj% toward 1. 
+	for( var key in adj ) {
+		if( adj[key] > 0 ){
+			newColor[key] += adj[key] * (1-color[key]);
+		} else {
+			newColor[key] += adj[key] * color[key];
+		}
+	}
+			
+	return newColor;	
+}
+
 
 function IdentityTransformation(){
 	// 3x3 Matrix. This is the identity affine transformation.
@@ -374,28 +375,134 @@ function compose( transOne, transTwo ){
 }
 
 
-function Renderer( canvasId ){
-	var canvas = document.getElementById( canvasId );
-	var ctx = canvas.getContext("2d");
-	var width = canvas.width;
-	var height = canvas.height;
+Renderer = {
+	canvas: null,
+	ctx: null,
+	width: null,
+	height: null,
 	
-	this._depth = 0;
+	compiled: null,
 	
-	this.setTransform = function( trans ){
+	render: function( compiled, canvasId ) {
+		Renderer.compiled = compiled;
+		
+		Renderer.canvas = document.getElementById( canvasId );
+		Renderer.ctx = Renderer.canvas.getContext("2d");
+		Renderer.width = Renderer.canvas.width;
+		Renderer.height = Renderer.canvas.height;		
+		
+		Renderer.drawBackground();	
+		Renderer.draw();
+	},
+	
+	drawBackground: function() {
+		if( Renderer.compiled.background ){
+			var colorAdj = Renderer.compiled.background;
+			var backgroundColor = {h:0, s:0, b:1, a:1};
+			var c = adjustColor( backgroundColor, colorAdj );
+
+			Renderer.ctx.fillStyle = colorToRgba( c );
+			Renderer.ctx.fillRect( 0, 0, Renderer.width, Renderer.width );
+		}
+	},
+	
+	draw: function() {
+		var ruleName = Renderer.compiled.startshape;
+		var foregroundColor = {h:0, s:0, b:0, a:1};
+		Renderer.drawRule( ruleName, IdentityTransformation(), foregroundColor );
+	},
+	
+	drawRule: function( ruleName, transform, color ){
+	  //console.log( ruleName, transform );
+		// When things get too small, we can stop rendering.
+		if( transform[0][0] * 300 <= 1 && transform[1][1] * 300 <= 1 ){
+			return;
+		}
+		
+		// Choose which rule to go with...
+		var choices = Renderer.compiled[ruleName];
+		
+		var sum = 0;
+		for each( var choice in choices ){
+			sum += choice.weight;
+		}
+		
+		var r = Math.random() * sum;
+		
+		sum = 0;
+		for each( var choice in choices ){
+			sum += choice.weight;
+			if( r <= sum ){
+				var shape = choice;
+				break;
+			}
+		}
+		
+		Renderer.drawShape( shape, transform, color );
+	},
+	
+	drawShape: function( shape, transform, color ){
+	  //console.log( "drawShape: ", shape, color)
+		for each( item in shape.draw ){
+			switch( item.shape ){
+				case "CIRCLE":
+					var localTransform = Renderer.adjustTransform( item, transform );
+					Renderer.setTransform( localTransform );
+					
+					var newColor = adjustColor( color, item );
+					
+					Renderer.ctx.beginPath();
+					Renderer.ctx.fillStyle = colorToRgba( newColor );
+					Renderer.ctx.arc( 0, 0, .5, 0, 2*Math.PI, true )
+					Renderer.ctx.fill();
+					break;
+					
+				case "SQUARE":
+					var localTransform = Renderer.adjustTransform( item, transform );
+					Renderer.setTransform( localTransform );
+					
+					var newColor = adjustColor( color, item );
+										
+					Renderer.ctx.beginPath();
+					Renderer.ctx.fillStyle = colorToRgba( newColor );
+					Renderer.ctx.fillRect(-.5, -.5, 1, 1);
+					break;
+					
+				default:
+
+				  var newColor = adjustColor( color, item );
+					var localTransform = Renderer.adjustTransform( item, transform );
+				  
+				  var threadedDraw = function(sh, lt, co){
+				    this.start = function(){
+				      Renderer.drawRule( sh, lt, co );
+				    }
+				  }
+				  
+				  var tD = new threadedDraw( item.shape, localTransform, newColor );
+				  //tD.start();
+					setTimeout( tD.start, 1 );
+					
+					break;
+			}			
+		}
+	},
+	
+	
+	setTransform: function( trans ){
 		// Set the transform to the identity.
-		ctx.setTransform( 1, 0, 0, 1, 0, 0 );
+		Renderer.ctx.setTransform( 1, 0, 0, 1, 0, 0 );
 		
 		// Globally center and scale the transform (often the pictures are too small)
-		ctx.translate( width/2, height/2 );
-		ctx.scale( 300, 300 );
+		Renderer.ctx.translate( Renderer.width/2, Renderer.height/2 );
+		Renderer.ctx.scale( 300, 300 );
 		
 		// Perform the actual transformation.
-		ctx.transform( trans[0][0], trans[1][0], trans[0][1], trans[1][1], trans[0][2], trans[1][2] );		
-	}
+		Renderer.ctx.transform( trans[0][0], trans[1][0], trans[0][1], trans[1][1], trans[0][2], trans[1][2] );		
+	},
 	
 
-	this.adjustTransform = function( adjs, transform, fix ){
+	adjustTransform: function( adjs, transform, fix ){
 		// Tranalsation
 		var x = typeof(adjs.x) != "undefined" ? adjs.x : 0;
 		var y = typeof(adjs.y) != "undefined" ? -adjs.y : 0;
@@ -436,93 +543,6 @@ function Renderer( canvasId ){
 		
 		return transform;
 		
-	}
+	}	
 	
-	this.drawBackground = function() {
-		if( this.compiled.background ){
-			var colorAdj = this.compiled.background;
-			var c = new Color().adjust( colorAdj );
-
-			ctx.fillStyle = c.toRgba();
-			ctx.fillRect( 0, 0, width, width );
-		}
-	}
-	
-	this.draw = function() {
-		var ruleName = this.compiled.startshape;
-		var ident = IdentityTransformation();
-		this.drawRule( ruleName, ident );
-	}
-	
-	this.drawShape = function( shape, transform ){
-		for each( item in shape.draw ){
-			var color = new Color( 0, 0, 0, 1 ).adjust( item );
-			
-			switch( item.shape ){
-				case "CIRCLE":
-					var localTransform = this.adjustTransform( item, transform, 1 );
-					this.setTransform( localTransform );
-					
-					ctx.beginPath();
-					ctx.fillStyle = color.toRgba();
-					ctx.arc( 0, 0, .5, 0, 2*Math.PI, true )
-					ctx.fill();
-					break;
-				case "SQUARE":
-					var localTransform = this.adjustTransform( item, transform, 1 );
-					this.setTransform( localTransform );
-										
-					ctx.beginPath();
-					ctx.fillStyle = color.toRgba();
-					ctx.fillRect(-.5, -.5, 1, 1);
-					break;
-				default:					
-					var localTransform = this.adjustTransform( item, transform, 0 );
-
-					this._depth += 1;					
-					this.drawRule( item.shape, localTransform );
-					this._depth -= 1;
-					
-					break;
-			}			
-		}
-	}
-	
-	this.drawRule = function( ruleName, transform ){
-		
-		// When things get too small, we can stop rendering.
-		//if( transform[0][0] < .0002 || transform[1][1] < .0002 ){
-		if( this._depth > 20){
-			return;
-		}
-		
-		// Choose which rule to go with...
-		var choices = this.compiled[ruleName];
-		
-		var sum = 0;
-		for each( var choice in choices ){
-			sum += choice.weight;
-		}
-		
-		var r = Math.random() * sum;
-		
-		sum = 0;
-		for each( var choice in choices ){
-			sum += choice.weight;
-			if( r <= sum ){
-				var shape = choice;
-				break;
-			}
-		}
-		
-		this.drawShape( shape, transform );
-	}
-	
-	this.render = function( compiled ) {
-		this.compiled = compiled;
-		
-		this.drawBackground();	
-		this.draw();
-		
-	}
 }
