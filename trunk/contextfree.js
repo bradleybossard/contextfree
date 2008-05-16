@@ -501,7 +501,7 @@ Renderer = {
 				  }
 				  
 				  var tD = new threadedDraw( item.shape, localTransform, newColor );
-					setTimeout( tD.start, 10 );
+					setTimeout( tD.start, 1 );
 					
 					break;
 			}			
