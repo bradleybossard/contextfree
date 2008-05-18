@@ -350,33 +350,24 @@ function toAffineTransformation( a, b, c, d, x, y ){
 	return [ [a,b,x], [c,d,y], [0,0,1] ];
 }
 
-
-// Inner product of two verctors
-function innerProduct( v1, v2 ) {
-	var sum = 0;
-	for( i = 0; i <= v1.length-1; i++ ) {
-		sum += v1[i] * v2[i];
-	}
-	return sum;
-}
-
 // Composes two transformations (i.e., by multiplying them).
-function compose( transOne, transTwo ){
-	var a = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
-	
-	// Transpose the second transformation.
-	transTwoT = [0,0,0];
-	for( var i=0; i<=2; i++){
-		transTwoT[i] = [transTwo[0][i], transTwo[1][i], transTwo[2][i]];
-	}
-	
-	for( var i=0; i<=2; i++) {
-		for( var j=0; j<=2; j++) {
-			a[i][j] = innerProduct( transOne[i], transTwoT[j] );
-		}		
-	}
-	return a;
+function compose(m1, m2) {
+  var result = IdentityTransformation();
+
+  for (var x = 0; x < 3; x++) {
+    for (var y = 0; y < 3; y++) {
+      var sum = 0;
+
+      for (var z = 0; z < 3; z++) {
+        sum += m1[x][z] * m2[z][y];
+      }
+
+      result[x][y] = sum;
+    }
+  }
+  return result;
 }
+
 
 
 Renderer = {
