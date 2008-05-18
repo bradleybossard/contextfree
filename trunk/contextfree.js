@@ -62,13 +62,16 @@ function hsl2rgb(h, s, l, a){
 	g = Math.ceil(g * 255);
 	b = Math.ceil(b * 255);
 
-	return "rgba(" + r + ", " + g + ", " + b + ", " + a + ");"
+  // Putting a semicolon at the end of an rgba definition
+  // causes it to not work 
+	return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")"
 
 }
 
 
 // TODO: String comments
 // TODO: Handle ordered arguments (i.e., square brakets)
+// TODO: Handle the | operator
 function Tokenizer( ){
 	this._input = null;
 	
@@ -135,6 +138,8 @@ function Tokenizer( ){
 
 // TODO: Handle ordered arguments
 // TODO: Handle the shape*[] syntax
+// TODO: Handle the | argument
+// TODO: Handle comments
 function Compiler() {
 	this._keywords = ["startshape", "rule", "background"]
 	this._compiled = {};
@@ -308,7 +313,6 @@ function colorToRgba( color ){
 
 function adjustColor( color, adjustments ) {
 	// See http://www.contextfreeart.org/mediawiki/index.php/Shape_adjustments
-		
 	var newColor = { h: color.h, s: color.s, b: color.b, a: color.a };
 	
 	// Add num to the drawing hue value, modulo 360 
@@ -382,8 +386,9 @@ Renderer = {
 	height: null,
 	
 	compiled: null,
+	_maxThreads: 30,
 	
-	_threadCount: 0,
+	queue: [],
 	
 	render: function( compiled, canvasId ) {
 		Renderer.compiled = compiled;
@@ -395,6 +400,20 @@ Renderer = {
 		
 		Renderer.drawBackground();	
 		Renderer.draw();
+		Renderer.tick();
+	},
+	
+	tick: function(){
+	  if( Renderer.queue.length > 0 ){
+  	  var start = new Date();
+      var concurrent = Math.min( Renderer.queue.length - 1, Renderer._maxThreads );
+      for( var i=0; i<=concurrent; i++ ){
+        Renderer.queue.shift().start();
+      }
+      var end = new Date();
+      //console.log( end-start );
+	    setTimeout( Renderer.tick, end-start );
+	  }
 	},
 	
 	drawBackground: function() {
@@ -501,7 +520,9 @@ Renderer = {
 				  }
 				  
 				  var tD = new threadedDraw( item.shape, localTransform, newColor );
-					setTimeout( tD.start, 1 );
+				  Renderer.queue.push( tD );
+				  //console.log( Renderer.queue )
+					//setTimeout( tD.start, 1 );
 					
 					break;
 			}			

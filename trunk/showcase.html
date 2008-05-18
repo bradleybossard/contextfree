@@ -20,6 +20,12 @@
 
     	var c = new Compiler();
     	var compiled = c.compile( tokens );
+    	
+    	if( compiled.background ){
+      	var back = compiled.background;
+    	  var backcolor = hsl2rgb( back.h|.001, back.sat|.01, back.b|1, back.a|1 );
+    	  document.body.style.backgroundColor = backcolor;
+    	}
 
       var canvas = document.createElement( "canvas" );
       var container = $("#canvasContainer");
@@ -122,6 +128,37 @@ rule QUAD 0.5 {
 }
 </textarea>	
 
+<textarea id="Aza's Fractal" style="width:400px;height:400px">
+startshape starter
+background{ b -1 }
+
+rule starter{
+	center{ b 1 }
+}
+
+rule center {
+  CIRCLE{ }
+  wings {}	
+}
+
+rule center {
+  SQUARE{ }
+  wings { r 3}	
+}
+
+rule center {
+  TRIANGLE{ }
+  wings { r -4}	
+}
+
+rule wings {
+  center{ x .75 s .5  }	
+  center{ x -.75 s .5 }
+  center{ y .75 s .5  }	
+  center{ y -.75 s .5  }
+}
+
+</textarea>
 
 <textarea id="circle fractal" style="width:400px;height:400px">
 startshape starter
@@ -145,8 +182,6 @@ rule wings {
   center{ y .75 s .5 b -.2 r 2}	
   center{ y -.75 s .5 b -.2 r -2}
 }
-
-
 </textarea>
 
 
@@ -501,17 +536,17 @@ rule LINES {
 	LINE { rotate 180 }
 }
 
-rule LINE 1000 {
+rule LINE 300 {
 	CIRCLE { }
-	LINE { y .   }
+	LINE { y .45  }
 }
-// turns
+
+
 rule LINE 1 { LINE { rotate 45 } }
 rule LINE 1 { LINE { rotate -45 } }
 rule LINE 1 { LINE { rotate 90 } }
 rule LINE 1 { LINE { rotate -90 } }
 
-// station
 rule LINE 4 {
 	SQUARE {
 		size 3
@@ -918,7 +953,7 @@ rule burbuja 0.8 { burbuja_fin {} }
 startshape scale
 background {h 50 sat .5 b -.5}
 
-rule scale{ START{ s .04 y -1 }}
+rule scale{ START{ s .02 y -1 }}
 
 rule START {
 BRANCH { hue 20 sat 0.8 b 0.8 }
@@ -982,11 +1017,232 @@ rule SHAPE 0.01 {
 SQUARE { }
 CURVE_I { s 0.5 }
 }
+</textarea>
+
+<textarea id="Urban Connection">
+  startshape scale
+  background { hue 400 sat 0.2 b -1 }
+
+  rule scale{
+    START{ s .01 }
+  }
+
+  rule START {
+      SCENE { h 900 sat 1 b .5 }
+      FUXIA {h 400 sat 1 b .5}
+      START {y 100 r 90  s 0.29}
+  }
+
+  rule FUXIA{
+      CIRCLE { s 10 x -10  }
+      CIRCLE { x 50 s 5  }
+      CIRCLE { x 15 y 15  size 5 }
+      FUXIA {y 50 r 88  s 0.59 alpha -0.15}
+  }
+  rule FUXIA 0.45 {
+      FUXIA{flip -50}
+      FUXIA {flip -10}
+  }
+  rule SCENE {
+      CIRCLE {  size 20 }
+      CIRCLE {  size 30 alpha -0.7 }
+      CIRCLE {  size 40 alpha -0.7 }
+      FLOW { }
+      FLOW { }
+      FLOW { flip -50 }
+      FLOW { flip -50 }
+      FLOW { flip -10 }
+      FLOW { flip -10 }
+  }
+  rule FLOW 0.008 {
+      SQUARE { }
+      CIRCLE { s 5 alpha -0.7 }
+      FLOW { x 1 s 0.995 r 2}
+  }
+  rule FLOW 0.0001 {
+      FLOW { flip 2 }
+  }
 </textarea>  
 
+<textarea id="Brownian Motion">
+startshape STARTER
+
+rule STARTER{
+  DOT{ s .5 }  
+}
+
+rule DOT{
+  CIRCLE{ s 1 b 0 a -.99 }  
+  CIRCLE{ s .3 b .5 sat 1 }
+  MOTION{ h .1 }
+}
+
+rule MOTION{
+  DOT{ x .05 }
+}
+
+rule MOTION{
+  DOT{ x -.05 }
+}
+
+rule MOTION{
+  DOT{ y .05 }
+}
+
+rule MOTION{
+  DOT{ y -.05 }
+}
+</textarea>
+
+<textarea id="Brownian Motion Gray">
+startshape STARTER
+
+rule STARTER{
+  DOT{}
+}
+
+rule DOT{
+  CIRCLE{ s 1 b 1 a -.99 }
+  CIRCLE{ s .33 b 1 a -.5 }  
+  CIRCLE{ s .3 b .5 sat 0 }
+  MOTION{ h .2 }
+}
+
+rule MOTION{
+  DOT{ x .05 }
+}
+
+rule MOTION{
+  DOT{ x -.05 }
+}
+
+rule MOTION{
+  DOT{ y .05 }
+}
+
+rule MOTION{
+  DOT{ y -.05 }
+}
+</textarea>
+
+<textarea id="Fall">
+  startshape scale
+
+  rule scale{
+  	FRACT{ s 2 }
+  }
+
+  rule FRACT{
+  	STAR{}
+  	SUBSTAR{}
+  	SUBSTAR{ r 60 }
+  	SUBSTAR{ r 120 }
+
+  }
+
+  rule SUBSTAR{
+  	FRACT{ s .34 b .4 y .385 h 10 sat .7}
+  	FRACT{ s .34 b .4 y -.385 h 12 sat 1}
+  }
+
+  rule SUBSTAR .3 {}
+
+  rule STAR{
+  	TRIANGLE { }
+  	TRIANGLE { flip 180 }
+  }
+
+  rule fract .5 {}
+</textarea>
+
+
+<textarea id="Star System BTP-73">
+  startshape scale
+  background { b -1 } 
+
+  rule scale{
+    START{ s .006 }
+  }
+
+  rule DRAW {
+      SHAPE { }
+      SHAPE { flip 90 }
+      DRAW { y 1 s 0.999 r 1}
+  }
+
+  rule DRAW_B {
+      SHAPE { }
+      SHAPE { flip 90 }
+      DRAW_B { y 1 s 0.997 r -1}
+  }
+
+  rule DRAW 0.03 {
+      DRAW_BALL { }
+  }
+
+  rule DRAW 0.03 {
+      DRAW_B { }
+      DRAW_BALL { }
+  }
+
+  rule DRAW_B 0.06 {DRAW { }}
+  rule DRAW 0.06 {DRAW_B { }}
+
+  rule SHAPE {
+      LINE { }
+      SHAPE { x 1 alpha -0.2}
+  }
+
+  rule SHAPE 0.1 {}
+
+
+  rule START {
+      DRAW { flip 180 x 10 r 7 hue 70 sat 0.8 b 0.8 }
+      DRAW { flip 180 x 13 hue 70 sat 0.8 b 0.8 }
+      DRAW { flip 180 x 15 r 15 hue 70 sat 0.8 b 0.8 }
+      DRAW { flip 180 x 9 r 15 hue 70 sat 0.8 b 0.8 }
+      DRAW_BALL { x 50 hue 70 sat 0.8 b 0.6}
+  }
+
+
+  rule DRAW_BALL {
+      SHAPE { }
+      SHAPE { flip 90 }
+      DRAW_BALL { y 10 s 0.999 r 15 alpha -0.001 b -0.005}
+  }
+
+  rule DRAW_BALL {
+      DRAW_BALL { alpha -0.5 }
+  }
+
+  rule DRAW_BALL {
+      DRAW_BALL { alpha 0.5 }
+  }
+
+  rule SHAPE {
+      LINE { }
+      SHAPE { x 1.5 alpha -0.2 r 5}
+  }
+
+  rule SHAPE {
+      LINE { }
+      SHAPE { x 1.5 alpha -0.2 r -5}
+  }
+
+  rule SHAPE 0.1 {}
+
+
+  rule LINE {CIRCLE { s 0.5 20 }}
+  rule LINE {CIRCLE { s 0.1 20 }}
+  rule LINE {TRIANGLE { s 9 20 hue 20 }}
+  rule LINE {CIRCLE { s 0.6 20 }}
+  rule LINE {CIRCLE { s 3 20 b 0.6 }}
+
+
+</textarea>
 <script>
 if( location.hash ){ var theId = location.hash.substring(1) }
-else{ var theId = "i ching"; }
+else{ var theId = "mtree"; }
 populateMenu( theId );
 display( theId );
 $("#menu").change( drawChoice );
