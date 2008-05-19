@@ -22,12 +22,23 @@ function getKeyValue( possibleVariableNames, defaultValue, argList ){
     possibleVariableNames = [possibleVariableNames];
   }
 
-  for each( var name in possibleVariableNames ) {
+  for( var i=0; i<=possibleVariableNames.length-1; i++) {
+    var name = possibleVariableNames[i];
     if( typeof(argList[name]) != "undefined" ) {
       return argList[name];
     }
-  }  
+  }
+  
   return defaultValue;
+}
+
+// array-like enumeration
+if (!Array.forEach) { // mozilla already supports this
+  Array.forEach = function(object, block, context) {
+    for (var i = 0; i < object.length; i++) {
+      block.call(context, object[i], i, object);
+    }
+  };
 }
 
 // hue, saturation, brightness, alpha
@@ -98,13 +109,14 @@ function Tokenizer( ){
 	
 	this._tokenizeNext = function( pos ){
 		var stops = [];
+		var self = this;
 		
-		for each( var stopChar in this._gStopChars ){
-			var foundPos = this._input.indexOf( stopChar, pos );
+		this._gStopChars.forEach( function( stopChar ) {
+			var foundPos = self._input.indexOf( stopChar, pos );
 			if( foundPos != -1 ){
 				stops.push( foundPos + 1 )
-			}
-		}
+			}		  
+		})
 		
 		var m = min(stops);
 		var stopChar = this._gStopChars[ m.index ];
@@ -194,9 +206,10 @@ function Compiler() {
 		}
 		
 		// Inheritance from the the _abstractArgumentState.
-		for( var name in this._realState ){
-			this[name] = this._realState[name];
-		}
+		var self = this;
+		this._realState.forEach( function(name) {
+		  self[name] = self._realState[name];
+		})
 	}
 
 	this._abstractArgumentState = function() {
@@ -483,17 +496,18 @@ Renderer = {
 		var choices = Renderer.compiled[ruleName];
 		
 		var sum = 0;
-		for each( var choice in choices ){
-			sum += choice.weight;
-		}
+		choices.forEach( function(choice) {
+		  sum += choice.weight;
+		})
 		
 		var r = Math.random() * sum;
 		
 		sum = 0;
-		for each( var choice in choices ){
-			sum += choice.weight;
+		
+		for( var i=0; i <= choices.length-1; i++) {
+			sum += choices[i].weight;
 			if( r <= sum ){
-				var shape = choice;
+				var shape = choices[i];
 				break;
 			}
 		}
@@ -503,7 +517,7 @@ Renderer = {
 	
 	drawShape: function( shape, transform, color, priority ){
 	  //console.log( "drawShape: ", shape, color)
-		for each( item in shape.draw ){
+	  shape.draw.forEach( function(item) {
 			switch( item.shape ){
 				case "CIRCLE":
 					var localTransform = Renderer.adjustTransform( item, transform );
@@ -564,8 +578,8 @@ Renderer = {
 				  else{ Renderer.queue.push( tD ); }
 				  					
 					break;
-			}			
-		}
+			}	    
+	  });
 	},
 	
 	
