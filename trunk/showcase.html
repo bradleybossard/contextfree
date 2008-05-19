@@ -13,7 +13,9 @@
 		
 		<script>
     function display( id ){
-      var theId = id;
+      // We need to unescape the id because it is coming in via the hash and URLs
+      // can have weird encodings (i.e., "%20" instead of " ").
+      var theId = unescape(id);
     	document.getElementById("theCode").innerHTML = document.getElementById(theId).value;
 
     	var t = new Tokenizer();
