@@ -191,7 +191,7 @@ rule wings {
 startshape scale
 
 rule scale{
-	fract{ s 3 }
+	fract{ s 2.7 }
 }
 
 rule fract {	
@@ -204,6 +204,110 @@ rule fract {
 rule fract .5 {}
 </textarea>
 
+<textarea id="Directions">
+  startshape scale
+  
+  rule scale{ INIT{ s .05} }
+
+  rule INIT {
+      CIRCLE {s 2}
+      CIRCLE {s 1.8 b 1}
+      LINE {}
+      LINE { r 120}
+      LINE { r -120}
+  }
+
+  rule LINE {
+      SQUARE{}
+      LINE_2 {y 2}
+  }
+
+  rule LINE_2 {
+      SQUARE{}
+      LINE_R {y 2 r 2}
+  }
+
+  rule LINE_R {
+      SQUARE{}
+      LINE_R {y 2 s 0.999 r 2}
+  }
+
+  rule LINE_R 0.2 { TRIANGLE{} }
+
+  rule LINE_R 0.06 { ALT {} }
+
+  rule ALT {
+      INIT {s 0.8 b 0.2}
+  }
+
+  rule ALT {
+      TARGET{}
+      ALT2{x 2}
+  }
+
+  rule ALT2 {
+      TARGET{}
+      ALT2{x 2}
+  }
+
+  rule ALT2 0.5 {
+      TARGET{ x 1 s 2 }
+  }
+
+  rule TARGET {
+      CIRCLE{}
+      CIRCLE{s 0.8 b 1}
+      CIRCLE{s 0.6}
+      CIRCLE{s 0.4 b 1}
+      CIRCLE{s 0.2}
+  }
+
+</textarea>
+
+<textarea id="Lost Heart (Mouse)">
+  startshape lost
+
+  rule lost {
+    half { flip 90 x 0.4 b 0.6 }
+    half {x -0.4 b 0.6 }
+  }
+  
+  rule MOUSECLICK{ vine { s 0.2 0.2 } }
+  rule MOUSECLICK{ vine { s 0.2 0.2 r 30 } }
+  rule MOUSECLICK{ vine { s 0.2 0.2 r 60 } }
+  rule MOUSECLICK{ vine { s 0.2 0.2 r 90 } }
+  rule MOUSECLICK{ vine { s 0.2 0.2 r 120 } }
+  rule MOUSECLICK{ vine { s 0.2 0.2 r 150 } }
+  rule MOUSECLICK{ vine { s 0.2 0.2 r 180 } }
+  rule MOUSECLICK{ vine { s 0.2 0.2 r -30 } }
+  rule MOUSECLICK{ vine { s 0.2 0.2 r -60 } }
+  rule MOUSECLICK{ vine { s 0.2 0.2 r -90 } }
+  rule MOUSECLICK{ vine { s 0.2 0.2 r -120 } }
+  rule MOUSECLICK{ vine { s 0.2 0.2 r -150 } }
+  rule MOUSECLICK{ vine { s 0.2 0.2 r -180 } }
+
+
+
+  rule half {
+    CIRCLE { hue 0 sat 1 }
+    half { s 0.959 0.97 x 0.0164 y -0.03 b -0.02 }
+  }
+
+  rule vine 15 {
+    CIRCLE { s 1 0.4 }
+    vine { s 0.96 x 0.4 r 10 z 0.05 b 0.01 }
+  }
+
+  rule vine 2 {
+    TRIANGLE { s 0.3 1.2 r 40 y -0.3 flip 0 }
+    vine { }
+  }
+
+  rule vine {
+    vine { flip 0 }
+  }
+
+</textarea>
 
 <textarea id="snakes">
 startshape starter
@@ -1238,9 +1342,141 @@ rule MOTION{
   rule LINE {TRIANGLE { s 9 20 hue 20 }}
   rule LINE {CIRCLE { s 0.6 20 }}
   rule LINE {CIRCLE { s 3 20 b 0.6 }}
+</textarea>
 
+<textarea id="Mouse">
+startshape C
+
+rule C{
+  CIRCLE{ s .5 b .5 }
+}
+
+rule MOUSECLICK{
+  CIRCLE{ s .2 b 0 }
+}
+</textarea>
+
+<textarea id="Mouse Tangle">
+startshape scale
+
+rule MOUSECLICK{
+  scale{}
+}
+
+rule scale{ 
+	SPIKES{ s .03 }
+}
+
+rule SPIKES {
+	SPIKE { r 90 }
+	SPIKE { r 270 }
+}
+
+rule SPIKES {
+	SPIKE { r }
+	SPIKE { r 180 }
+}
+
+rule SPIKE {
+	LSPIKE {}
+}
+rule SPIKE {
+	LSPIKE { flip 90 }
+}
+
+rule LSPIKE {
+	SQUARE {}
+	LSPIKE { y 0.98 s 0.99 r 1}
+}
+rule LSPIKE 0.002 {
+	SPIKE { r 90 }
+	SPIKE { r -90 }
+}
+</textarea>
+
+<textarea id="Mouse Trial">
+startshape nothing
+
+rule nothing {}
+
+rule MOUSEMOVE{
+  SPIKE{ s .01 r 180}
+}
+
+rule MOUSEMOVE{
+  SPIKE{ s .01 r 90}
+}
+
+rule MOUSEMOVE{
+  CIRCLE{ s .1 r 90}
+}
+
+
+rule SPIKE {
+	LSPIKE {}
+}
+
+rule SPIKE {
+	LSPIKE { flip 90 }
+}
+
+rule LSPIKE {
+	SQUARE {}
+	LSPIKE { y 0.98 s 0.97 r 15}
+}
 
 </textarea>
+
+<textarea id="Motion Mouse">
+startshape nothing
+
+rule nothing{
+}
+
+rule DOT{
+  CIRCLE{ s 4 b 1 a -.9 }
+  CIRCLE{ s .33 b 1 a -.5 }  
+  CIRCLE{ s .3 b .5 sat 0 }
+}
+
+rule MOUSEMOVE{
+  DOT{ }
+}
+</textarea>
+
+<textarea id="Fireworks Mouse">
+startshape nothing
+
+rule nothing{
+}
+
+rule MOUSECLICK{
+  FRACT{}
+}
+
+rule FRACT{
+	STAR{}
+	SUBSTAR{}
+	SUBSTAR{ r 60 }
+	SUBSTAR{ r 120 }
+
+}
+
+rule SUBSTAR{
+	FRACT{ s .34 b .4 y .385 h 10 sat .7}
+	FRACT{ s .34 b .4 y -.385 h 12 sat 1}
+}
+
+rule SUBSTAR .3 {}
+
+rule STAR{
+	TRIANGLE { }
+	TRIANGLE { flip 180 }
+}
+
+rule fract .8 {}
+</textarea>
+
 <script>
 if( location.hash ){ var theId = location.hash.substring(1) }
 else{ var theId = "mtree"; }
