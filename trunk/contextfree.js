@@ -1,4 +1,3 @@
-
 function min( list ){
 	var min = { value: list[0], index: 0 };
 	for( var i in list ) {
@@ -9,6 +8,26 @@ function min( list ){
 	}
 	
 	return min;
+}
+
+// Used within a function to get an synonym'ed arguments value, or supply a default.
+// For example:
+//   var hue = getKeyValue( ["h", "hue"], 0, args );
+//   var x = getKeyValue( "x", 1, args );
+//
+function getKeyValue( possibleVariableNames, defaultValue, argList ){
+  // We can either be getting a list of strings or a string. If we get a string,
+  // we just convert it into a list containing that string.
+  if( typeof(possibleVariableNames) == "string" ) {
+    possibleVariableNames = [possibleVariableNames];
+  }
+
+  for each( var name in possibleVariableNames ) {
+    if( typeof(argList[name]) != "undefined" ) {
+      return argList[name];
+    }
+  }  
+  return defaultValue;
 }
 
 // hue, saturation, brightness, alpha
@@ -63,7 +82,7 @@ function hsl2rgb(h, s, l, a){
 	b = Math.ceil(b * 255);
 
   // Putting a semicolon at the end of an rgba definition
-  // causes it to not work 
+  // causes it to not work.
 	return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")"
 
 }
@@ -300,11 +319,6 @@ function Compiler() {
 	};
 }
 
-function getCanvas(){
-	var canvas = document.getElementById("canvas");
-	return canvas.getContext("2d");
-}
-
 
 function colorToRgba( color ){
   return hsl2rgb( color.h, color.s, color.b, color.a );
@@ -316,16 +330,13 @@ function adjustColor( color, adjustments ) {
 	var newColor = { h: color.h, s: color.s, b: color.b, a: color.a };
 	
 	// Add num to the drawing hue value, modulo 360 
-	newColor.h += adjustments.h || adjustments.hue || 0;
+	newColor.h += getKeyValue( ["h", "hue"], 0, adjustments );
 	newColor.h %= 360;
 	
 	var adj = {};
-	adj.s = adjustments.sat || adjustments.saturation;
-	adj.b = adjustments.b || adjustments.brightness;		
-	adj.a = adjustments.a || adjustments.alpha;
-	if( typeof(adj.s) == "undefined" ){ adj.s = 0; }
-	if( typeof(adj.b) == "undefined" ){ adj.b = 0; }
-	if( typeof(adj.a) == "undefined" ){ adj.a = 0; }	
+	adj.s = getKeyValue( ["sat", "saturation"], 0, adjustments )
+	adj.b = getKeyValue( ["b", "brightness"], 0, adjustments )
+	adj.a = getKeyValue( ["a", "alpha"], 0, adjustments )
 			
 	// If adj<0 then change the drawing [blah] adj% toward 0.
 	// If adj>0 then change the drawing [blah] adj% toward 1. 
@@ -387,24 +398,31 @@ Renderer = {
 		Renderer.canvas = document.getElementById( canvasId );
 		Renderer.ctx = Renderer.canvas.getContext("2d");
 		Renderer.width = Renderer.canvas.width;
-		Renderer.height = Renderer.canvas.height;		
+		Renderer.height = Renderer.canvas.height;
 		
-		Renderer.drawBackground();	
+		Renderer._globalScale = 300;
+		
+		Renderer._rendering = false;
+		
+		Renderer.drawBackground();
+		
 		Renderer.draw();
 		Renderer.tick();
 	},
 	
 	tick: function(){
 	  if( Renderer.queue.length > 0 ){
+	    Renderer._rendering = true;
   	  var start = new Date();
       var concurrent = Math.min( Renderer.queue.length - 1, Renderer._maxThreads );
       for( var i=0; i<=concurrent; i++ ){
         Renderer.queue.shift().start();
       }
       var end = new Date();
-      //console.log( end-start );
+      
 	    setTimeout( Renderer.tick, end-start );
 	  }
+	  Renderer._rendering = false;
 	},
 	
 	drawBackground: function() {
@@ -427,7 +445,7 @@ Renderer = {
 	drawRule: function( ruleName, transform, color ){
 		// When things get too small, we can stop rendering.
 		// Too small, in this case, means less than half a pixel.
-		if( Math.abs(transform[0][1])*300 < .5 && Math.abs(transform[1][1])*300 < .5 ){
+		if( Math.abs(transform[0][1])*Renderer._globalScale < .5 && Math.abs(transform[1][1])*Renderer._globalScale < .5 ){
 			return;
 		}
 		
@@ -512,9 +530,7 @@ Renderer = {
 				  
 				  var tD = new threadedDraw( item.shape, localTransform, newColor );
 				  Renderer.queue.push( tD );
-				  //console.log( Renderer.queue )
-					//setTimeout( tD.start, 1 );
-					
+				  					
 					break;
 			}			
 		}
@@ -522,12 +538,8 @@ Renderer = {
 	
 	
 	setTransform: function( trans ){
-		// Set the transform to the identity.
-		Renderer.ctx.setTransform( 1, 0, 0, 1, 0, 0 );
-		
 		// Globally center and scale the transform (often the pictures are too small)
-		Renderer.ctx.translate( Renderer.width/2, Renderer.height/2 );
-		Renderer.ctx.scale( 300, 300 );
+		Renderer.ctx.setTransform( Renderer._globalScale, 0, 0, Renderer._globalScale, Renderer.width/2, Renderer.height/2 );
 		
 		// Perform the actual transformation.
 		Renderer.ctx.transform( trans[0][0], trans[1][0], trans[0][1], trans[1][1], trans[0][2], trans[1][2] );		
@@ -536,17 +548,17 @@ Renderer = {
 
 	adjustTransform: function( adjs, transform, fix ){
 		// Tranalsation
-		var x = typeof(adjs.x) != "undefined" ? adjs.x : 0;
-		var y = typeof(adjs.y) != "undefined" ? -adjs.y : 0;
-		
+		var x = getKeyValue( "x", 0, adjs );
+		var y = -getKeyValue( "y", 0, adjs );
+  			
 		if( x != 0 || y != 0 ){
 			var translate = toAffineTransformation(1, 0, 0, 1, x, y);
 			transform = compose( transform, translate );
 		}
 
 		// Rotation
-		var r = adjs.r || adjs.rotate || "undefined";
-		if( r != "undefined"){
+		var r = getKeyValue( ["r", "rotate"], null, adjs );
+		if( r != null ){
 			var cosTheta = Math.cos( -2*Math.PI * r/360 );
 			var sinTheta = Math.sin( -2*Math.PI * r/360 );
 			var rotate = toAffineTransformation( cosTheta, -sinTheta, sinTheta, cosTheta, 0, 0 );
@@ -554,8 +566,7 @@ Renderer = {
 		}
 				
 		// Scaling
-		var s = adjs.s || adjs.size || "undefined";
-		if( s == "undefined" ){ s = 1; }
+		var s = getKeyValue( ["s", "size"], 1, adjs );
 		if( typeof(s) == "number" ){ s = [s,s]; }
 		
 		if( s != 1 ){
@@ -564,8 +575,8 @@ Renderer = {
 		}						
 				
 		// Flip around a line through the origin;
-		var f = adjs.f || adjs.flip;
-		if( typeof(f) != "undefined" ){
+		var f = getKeyValue( ["f", "flip"], null, adjs );
+		if( f != null ){
 		  // Flip 0 means to flip along the X axis. Flip 90 means to flip along the Y axis.
 		  // That's why the flip vector (vX, vY) is Pi/2 radians further along than expected. 
 			vX = Math.cos( -2*Math.PI * f/360 );
