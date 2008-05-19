@@ -401,11 +401,10 @@ Renderer = {
 		Renderer.height = Renderer.canvas.height;
 		
 		Renderer._globalScale = 300;
-		
 		Renderer._rendering = false;
 		
 		Renderer.drawBackground();
-		
+		Renderer.setupEventHandlers();
 		Renderer.draw();
 		Renderer.tick();
 	},
@@ -415,14 +414,45 @@ Renderer = {
 	    Renderer._rendering = true;
   	  var start = new Date();
       var concurrent = Math.min( Renderer.queue.length - 1, Renderer._maxThreads );
+      
       for( var i=0; i<=concurrent; i++ ){
         Renderer.queue.shift().start();
       }
       var end = new Date();
       
-	    setTimeout( Renderer.tick, end-start );
+	    setTimeout( Renderer.tick, 2*(end-start) );
 	  }
 	  Renderer._rendering = false;
+	},
+	
+	setupEventHandlers: function() {
+	  var handler = function(shapeName, event) {
+	    var foregroundColor = {h:0, s:0, b:0, a:1};
+	    var transform = toAffineTransformation( 1, 0, 0, 1,
+	                                            (event.pageX-Renderer.width/2) / Renderer._globalScale,
+	                                            (event.pageY-Renderer.height/2) / Renderer._globalScale );
+	    
+	    Renderer.drawRule( shapeName, transform, foregroundColor, 1 );
+
+	    if( !Renderer._rendering){
+    		Renderer.tick();
+	    }     	    
+	  }
+	  
+	  var mouseClick = getKeyValue( "MOUSECLICK", null, Renderer.compiled );
+	  if( mouseClick ){
+	    $(Renderer.canvas).click( function(e) {
+	      handler( "MOUSECLICK", e );
+	    });
+	  }
+	  
+	  var mouseMove = getKeyValue( "MOUSEMOVE", null, Renderer.compiled );
+	  if( mouseMove ){
+	    $(Renderer.canvas).mousemove( function(e) {
+	      handler( "MOUSEMOVE", e );
+	    });
+	  }
+	  	  
 	},
 	
 	drawBackground: function() {
@@ -442,7 +472,7 @@ Renderer = {
 		Renderer.drawRule( ruleName, IdentityTransformation(), foregroundColor );
 	},
 	
-	drawRule: function( ruleName, transform, color ){
+	drawRule: function( ruleName, transform, color, priority ){
 		// When things get too small, we can stop rendering.
 		// Too small, in this case, means less than half a pixel.
 		if( Math.abs(transform[0][1])*Renderer._globalScale < .5 && Math.abs(transform[1][1])*Renderer._globalScale < .5 ){
@@ -468,10 +498,10 @@ Renderer = {
 			}
 		}
 		
-		Renderer.drawShape( shape, transform, color );
+		Renderer.drawShape( shape, transform, color, priority );
 	},
 	
-	drawShape: function( shape, transform, color ){
+	drawShape: function( shape, transform, color, priority ){
 	  //console.log( "drawShape: ", shape, color)
 		for each( item in shape.draw ){
 			switch( item.shape ){
@@ -522,14 +552,16 @@ Renderer = {
 				  var newColor = adjustColor( color, item );
 					var localTransform = Renderer.adjustTransform( item, transform );
 				  
-				  var threadedDraw = function(sh, lt, co){
+				  var threadedDraw = function(shape, transform, color){
 				    this.start = function(){
-				      Renderer.drawRule( sh, lt, co );
+				      Renderer.drawRule( shape, transform, color );
 				    }
 				  }
 				  
 				  var tD = new threadedDraw( item.shape, localTransform, newColor );
-				  Renderer.queue.push( tD );
+				  
+				  if( priority == 1 ){ Renderer.queue.unshift(tD); }
+				  else{ Renderer.queue.push( tD ); }
 				  					
 					break;
 			}			
