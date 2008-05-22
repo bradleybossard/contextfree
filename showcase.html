@@ -288,11 +288,9 @@ rule fract .5 {}
   rule MOUSECLICK{ vine { s 0.2 0.2 r -150 } }
   rule MOUSECLICK{ vine { s 0.2 0.2 r -180 } }
 
-
-
   rule half {
     CIRCLE { hue 0 sat 1 }
-    half { s 0.959 0.97 x 0.0164 y -0.03 b -0.02 }
+    half { s 0.959 0.97 x 0.0164 y -0.03 b -0.008 }
   }
 
   rule vine 15 {
@@ -1062,6 +1060,8 @@ background {h 50 sat .5 b -.5}
 
 rule scale{ START{ s .02 y -1 }}
 
+rule MOUSECLICK{ START{s .02} }
+
 rule START {
 BRANCH { hue 20 sat 0.8 b 0.8 }
 BRANCH { flip 90 hue 20 sat 0.8 b 0.8 }
@@ -1129,6 +1129,11 @@ CURVE_I { s 0.5 }
 <textarea id="Urban Connection">
   startshape scale
   background { hue 400 sat 0.2 b -1 }
+
+  rule MOUSECLICK{ START{ s .001 } }
+  rule MOUSECLICK{ START{ s .005 } }  
+  rule MOUSECLICK{ START{ s .01 } }
+  rule MOUSECLICK{ START{ s .003 r 5} }
 
   rule scale{
     START{ s .01 }

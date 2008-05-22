@@ -10,6 +10,16 @@ function min( list ){
 	return min;
 }
 
+Object.forceExtend = function(dst, src) {
+  for (var i in src) {
+    try{ dst[i] = src[i] } catch(e) {}
+  }
+  return dst
+}
+// In case Object.extend isn't defined already, set it to Object.forceExtend.
+if (!Object.extend)
+  Object.extend = Object.forceExtend
+
 // Used within a function to get an synonym'ed arguments value, or supply a default.
 // For example:
 //   var hue = getKeyValue( ["h", "hue"], 0, args );
@@ -206,10 +216,7 @@ function Compiler() {
 		}
 		
 		// Inheritance from the the _abstractArgumentState.
-		var self = this;
-		this._realState.forEach( function(name) {
-		  self[name] = self._realState[name];
-		})
+		Object.extend( this, this._realState);
 	}
 
 	this._abstractArgumentState = function() {
@@ -315,9 +322,7 @@ function Compiler() {
 				}
 				
 				// Inheritance from the abstract state.
-				for( var name in this._state ){
-					this[name] = this._state[name];
-				}
+				Object.extend( this, this._state);
 			})()			
 		}
 	}
@@ -583,12 +588,34 @@ Renderer = {
 	},
 	
 	
+	_transform: function( t ) {xxx
+	  var m = [ t[0][0], t[1][0], t[0][1], t[1][1], t[0][2], t[1][2] ];
+
+    if ( Renderer.ctx.transform ){
+      return Render.ctx.transform( m );
+    }
+    
+    Renderer.ctx.translate(m[4], m[5]);
+    // scale
+    if (Math.abs(m[1]) < 1e-6 && Math.abs(m[2]) < 1e-6) {
+      ctx.scale(m[0], m[3]);
+      return;
+    }
+    
+    var res = svdTransform({xx:m[0], xy:m[2], yx:m[1], yy:m[3], dx:m[4], dy:m[5]});
+    Renderer.ctx.rotate(res.angle2);
+    Renderer.ctx.scale(res.sx, res.sy);
+    Renderer.ctx.rotate(res.angle1);
+    
+    return;
+  },
+	
 	setTransform: function( trans ){
 		// Globally center and scale the transform (often the pictures are too small)
 		Renderer.ctx.setTransform( Renderer._globalScale, 0, 0, Renderer._globalScale, Renderer.width/2, Renderer.height/2 );
 		
 		// Perform the actual transformation.
-		Renderer.ctx.transform( trans[0][0], trans[1][0], trans[0][1], trans[1][1], trans[0][2], trans[1][2] );		
+		Renderer.ctx.transform( trans[0][0], trans[1][0], trans[0][1], trans[1][1], trans[0][2], trans[1][2] );
 	},
 	
 
@@ -637,3 +664,212 @@ Renderer = {
 	}	
 	
 }
+
+
+
+
+svdTransform = (function(){
+  //   Copyright (c) 2004-2005, The Dojo Foundation
+  //   All Rights Reserved
+  var m = {}
+  m.Matrix2D = function(arg){
+    // summary: a 2D matrix object
+    // description: Normalizes a 2D matrix-like object. If arrays is passed,
+    //    all objects of the array are normalized and multiplied sequentially.
+    // arg: Object
+    //    a 2D matrix-like object, a number, or an array of such objects
+    if(arg){
+      if(typeof arg == "number"){
+        this.xx = this.yy = arg;
+      }else if(arg instanceof Array){
+        if(arg.length > 0){
+          var matrix = m.normalize(arg[0]);
+          // combine matrices
+          for(var i = 1; i < arg.length; ++i){
+            var l = matrix, r = m.normalize(arg[i]);
+            matrix = new m.Matrix2D();
+            matrix.xx = l.xx * r.xx + l.xy * r.yx;
+            matrix.xy = l.xx * r.xy + l.xy * r.yy;
+            matrix.yx = l.yx * r.xx + l.yy * r.yx;
+            matrix.yy = l.yx * r.xy + l.yy * r.yy;
+            matrix.dx = l.xx * r.dx + l.xy * r.dy + l.dx;
+            matrix.dy = l.yx * r.dx + l.yy * r.dy + l.dy;
+          }
+          Object.extend(this, matrix);
+        }
+      }else{
+        Object.extend(this, arg);
+      }
+    }
+  }
+  // ensure matrix 2D conformance
+  m.normalize = function(matrix){
+      // summary: converts an object to a matrix, if necessary
+      // description: Converts any 2D matrix-like object or an array of
+      //    such objects to a valid dojox.gfx.matrix.Matrix2D object.
+      // matrix: Object: an object, which is converted to a matrix, if necessary
+      return (matrix instanceof m.Matrix2D) ? matrix : new m.Matrix2D(matrix); // dojox.gfx.matrix.Matrix2D
+  }
+  m.multiply = function(matrix){
+    // summary: combines matrices by multiplying them sequentially in the given order
+    // matrix: dojox.gfx.matrix.Matrix2D...: a 2D matrix-like object, 
+    //    all subsequent arguments are matrix-like objects too
+    var M = m.normalize(matrix);
+    // combine matrices
+    for(var i = 1; i < arguments.length; ++i){
+      var l = M, r = m.normalize(arguments[i]);
+      M = new m.Matrix2D();
+      M.xx = l.xx * r.xx + l.xy * r.yx;
+      M.xy = l.xx * r.xy + l.xy * r.yy;
+      M.yx = l.yx * r.xx + l.yy * r.yx;
+      M.yy = l.yx * r.xy + l.yy * r.yy;
+      M.dx = l.xx * r.dx + l.xy * r.dy + l.dx;
+      M.dy = l.yx * r.dx + l.yy * r.dy + l.dy;
+    }
+    return M; // dojox.gfx.matrix.Matrix2D
+  }
+  m.invert = function(matrix) {
+    var M = m.normalize(matrix),
+      D = M.xx * M.yy - M.xy * M.yx,
+      M = new m.Matrix2D({
+        xx: M.yy/D, xy: -M.xy/D, 
+        yx: -M.yx/D, yy: M.xx/D, 
+        dx: (M.xy * M.dy - M.yy * M.dx) / D, 
+        dy: (M.yx * M.dx - M.xx * M.dy) / D
+      });
+    return M; // dojox.gfx.matrix.Matrix2D
+  }
+  // the default (identity) matrix, which is used to fill in missing values
+  Object.extend(m.Matrix2D, {xx: 1, xy: 0, yx: 0, yy: 1, dx: 0, dy: 0});
+
+  var eq = function(/* Number */ a, /* Number */ b){
+    // summary: compare two FP numbers for equality
+    return Math.abs(a - b) <= 1e-6 * (Math.abs(a) + Math.abs(b)); // Boolean
+  };
+  
+  var calcFromValues = function(/* Number */ s1, /* Number */ s2){
+    // summary: uses two close FP values to approximate the result
+    if(!isFinite(s1)){
+      return s2;  // Number
+    }else if(!isFinite(s2)){
+      return s1;  // Number
+    }
+    return (s1 + s2) / 2; // Number
+  };
+  
+  var transpose = function(/* dojox.gfx.matrix.Matrix2D */ matrix){
+    // matrix: dojox.gfx.matrix.Matrix2D: a 2D matrix-like object
+    var M = new m.Matrix2D(matrix);
+    return Object.extend(M, {dx: 0, dy: 0, xy: M.yx, yx: M.xy}); // dojox.gfx.matrix.Matrix2D
+  };
+  
+  var scaleSign = function(/* dojox.gfx.matrix.Matrix2D */ matrix){
+    return (matrix.xx * matrix.yy < 0 || matrix.xy * matrix.yx > 0) ? -1 : 1; // Number
+  };
+  
+  var eigenvalueDecomposition = function(/* dojox.gfx.matrix.Matrix2D */ matrix){
+    // matrix: dojox.gfx.matrix.Matrix2D: a 2D matrix-like object
+    var M = m.normalize(matrix),
+      b = -M.xx - M.yy,
+      c = M.xx * M.yy - M.xy * M.yx,
+      d = Math.sqrt(b * b - 4 * c),
+      l1 = -(b + (b < 0 ? -d : d)) / 2,
+      l2 = c / l1,
+      vx1 = M.xy / (l1 - M.xx), vy1 = 1,
+      vx2 = M.xy / (l2 - M.xx), vy2 = 1;
+    if(eq(l1, l2)){
+      vx1 = 1, vy1 = 0, vx2 = 0, vy2 = 1;
+    }
+    if(!isFinite(vx1)){
+      vx1 = 1, vy1 = (l1 - M.xx) / M.xy;
+      if(!isFinite(vy1)){
+        vx1 = (l1 - M.yy) / M.yx, vy1 = 1;
+        if(!isFinite(vx1)){
+          vx1 = 1, vy1 = M.yx / (l1 - M.yy);
+        }
+      }
+    }
+    if(!isFinite(vx2)){
+      vx2 = 1, vy2 = (l2 - M.xx) / M.xy;
+      if(!isFinite(vy2)){
+        vx2 = (l2 - M.yy) / M.yx, vy2 = 1;
+        if(!isFinite(vx2)){
+          vx2 = 1, vy2 = M.yx / (l2 - M.yy);
+        }
+      }
+    }
+    var d1 = Math.sqrt(vx1 * vx1 + vy1 * vy1),
+      d2 = Math.sqrt(vx2 * vx2 + vy2 * vy2);
+    if(isNaN(vx1 /= d1)){ vx1 = 0; }
+    if(isNaN(vy1 /= d1)){ vy1 = 0; }
+    if(isNaN(vx2 /= d2)){ vx2 = 0; }
+    if(isNaN(vy2 /= d2)){ vy2 = 0; }
+    return {  // Object
+      value1: l1,
+      value2: l2,
+      vector1: {x: vx1, y: vy1},
+      vector2: {x: vx2, y: vy2}
+    };
+  };
+  
+  var decomposeSR = function(/* dojox.gfx.matrix.Matrix2D */ M, /* Object */ result){
+    // summary: decomposes a matrix into [scale, rotate]; no checks are done.
+    var sign = scaleSign(M),
+      a = result.angle1 = (Math.atan2(M.yx, M.yy) + Math.atan2(-sign * M.xy, sign * M.xx)) / 2,
+      cos = Math.cos(a), sin = Math.sin(a);
+    result.sx = calcFromValues(M.xx / cos, -M.xy / sin);
+    result.sy = calcFromValues(M.yy / cos, M.yx / sin);
+    return result;  // Object
+  };
+  
+  var decomposeRS = function(/* dojox.gfx.matrix.Matrix2D */ M, /* Object */ result){
+    // summary: decomposes a matrix into [rotate, scale]; no checks are done
+    var sign = scaleSign(M),
+      a = result.angle2 = (Math.atan2(sign * M.yx, sign * M.xx) + Math.atan2(-M.xy, M.yy)) / 2,
+      cos = Math.cos(a), sin = Math.sin(a);
+    result.sx = calcFromValues(M.xx / cos, M.yx / sin);
+    result.sy = calcFromValues(M.yy / cos, -M.xy / sin);
+    return result;  // Object
+  };
+  
+  return function(matrix){
+    // summary: decompose a 2D matrix into translation, scaling, and rotation components
+    // description: this function decompose a matrix into four logical components: 
+    //  translation, rotation, scaling, and one more rotation using SVD.
+    //  The components should be applied in following order:
+    //  | [translate, rotate(angle2), scale, rotate(angle1)]
+    // matrix: dojox.gfx.matrix.Matrix2D: a 2D matrix-like object
+    var M = m.normalize(matrix), 
+      result = {dx: M.dx, dy: M.dy, sx: 1, sy: 1, angle1: 0, angle2: 0};
+    // detect case: [scale]
+    if(eq(M.xy, 0) && eq(M.yx, 0)){
+      return Object.extend(result, {sx: M.xx, sy: M.yy});  // Object
+    }
+    // detect case: [scale, rotate]
+    if(eq(M.xx * M.yx, -M.xy * M.yy)){
+      return decomposeSR(M, result);  // Object
+    }
+    // detect case: [rotate, scale]
+    if(eq(M.xx * M.xy, -M.yx * M.yy)){
+      return decomposeRS(M, result);  // Object
+    }
+    // do SVD
+    var MT = transpose(M),
+      u  = eigenvalueDecomposition([M, MT]),
+      v  = eigenvalueDecomposition([MT, M]),
+      U  = new m.Matrix2D({xx: u.vector1.x, xy: u.vector2.x, yx: u.vector1.y, yy: u.vector2.y}),
+      VT = new m.Matrix2D({xx: v.vector1.x, xy: v.vector1.y, yx: v.vector2.x, yy: v.vector2.y}),
+      S = new m.Matrix2D([m.invert(U), M, m.invert(VT)]);
+    decomposeSR(VT, result);
+    S.xx *= result.sx;
+    S.yy *= result.sy;
+    decomposeRS(U, result);
+    S.xx *= result.sx;
+    S.yy *= result.sy;
+    return Object.extend(result, {sx: S.xx, sy: S.yy});  // Object
+  };
+})()
+
+m = [1,0,0,1,5,5];
+var res = svdTransform({xx:m[0], xy:m[2], yx:m[1], yy:m[3], dx:m[4], dy:m[5]})
+console.log( res );
