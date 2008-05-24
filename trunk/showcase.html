@@ -1484,6 +1484,115 @@ rule STAR{
 rule fract .8 {}
 </textarea>
 
+<textarea id="Art Net">
+  startshape net
+
+  rule net {
+      expand { }
+      dot { }
+      net { x 1 r 90 s 0.71 b 0.5}
+      net { x -1 r 90 s 0.71 b -0.5}
+  }
+  rule net {
+      expand { }
+      dot { }
+      net { x 1 r 90 s 0.71 b -0.5}
+      net { x -1 r 90 s 0.71 b 0.5}
+  }
+
+  rule expand {
+      arm { s 0.1 }
+      arm { s 0.1 r 180 }
+  }
+
+
+  rule dot {
+      CIRCLE { s 0.4 }
+  }
+  rule dot 0.7 {
+      CIRCLE { s 0.565685424949 }
+  }
+  rule dot 0.2 {
+      CIRCLE { s 0.8 }
+  }
+
+  rule arm {
+      SQUARE { }
+      SQUARE { x 1 }
+      SQUARE { x 2 }
+      SQUARE { x 3 }
+      SQUARE { x 4 }
+      SQUARE { x 5 }
+      SQUARE { x 6 }
+      SQUARE { x 7 }
+      SQUARE { x 8 }
+      SQUARE { x 9 }
+      SQUARE { x 10 }
+  }
+</textarea>
+
+<textarea id="Chiaroscuro">
+background {b -.5}
+
+startshape CHIAROSCURO
+
+rule CHIAROSCURO {
+    BLACK {b .5}
+}
+
+rule BLACK 60 {
+    CIRCLE {s .6}
+    BLACK {x .1 r 5 s .99 b -.01 a -.01}
+}
+rule BLACK {
+    WHITE {}
+    BLACK {}
+}
+
+rule WHITE 60 {
+    CIRCLE {s .6}
+    WHITE {x .1 r -5 s .99 b .01 a -.01}
+}
+rule WHITE {
+    BLACK {}
+    WHITE {}
+}
+</textarea>
+
+<textarea id="Ancient Map">
+startshape scaler
+
+background { b -.1 sat 0.25 hue 44 }
+
+rule scaler{
+	ANCIENTMAP{ s .06 }
+}
+
+rule ANCIENTMAP {
+    WALL1 {b 0.1 hue 34}
+    WALL1 {b 0.1 r 180 hue 34}
+}
+
+rule WALL1 {
+    WALL1{y 0.95 r 1 s 0.975}
+}
+
+rule WALL1 {
+    SQUARE {}
+    WALL1{y 0.95 r -1 s 0.975 sat 0.1 b .01 hue .1}
+}
+
+rule WALL1 0.09 {
+    SQUARE {}
+    WALL1{y 0.95 r 90 s 0.975}
+    WALL1{y 0.95 r -90 s 0.975}
+}
+
+rule WALL1 0.005 {
+    WALL1{y 0.97 r 90 s 1.5}
+    WALL1{y 0.97 r -90 s 1.5}
+}
+</textarea>
 <script>
 if( location.hash ){ var theId = location.hash.substring(1) }
 else{ var theId = "mtree"; }
