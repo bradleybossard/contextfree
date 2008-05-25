@@ -6,15 +6,13 @@
 		  .background{ width: 100%; background-color: #cacaca; position: absolute; left: 0px; padding-top: 5px; border-top: 1px solid #666;}
 		  .padding{ padding: 20px; }
 	  </style>
-	  
-  	<!--[if IE]><script type="text/javascript" src="excanvas.js"></script><![endif]-->	  
 		<script src="contextfree.js"></script>
 		<script src="jquery.js"></script>		
 		
 		<script>
     function display( id ){
-      // We need to unescape the id because it is coming in via the hash and URLs
-      // can have weird encodings (i.e., "%20" instead of " ").
+      // We need to unescape the id because it is coming in via the hash, and
+      // URL can have weird encodings (i.e., "%20" instead of " ").
       var theId = unescape(id);
     	document.getElementById("theCode").innerHTML = document.getElementById(theId).value;
 
@@ -34,13 +32,13 @@
       var container = $("#canvasContainer");
       canvas.width = container.width();
       canvas.height = container.height();
-      canvas.id = "canvas";
+      canvas.id = "theCanvas";
     
-      $(container).find("canvas").remove();
+      $(container).find("#theCanvas").remove();
       $(container).append( canvas );
 
     	var r = Renderer;
-    	r.render( compiled, "canvas" );
+    	r.render( compiled, "theCanvas" );
     }
     
     function drawChoice(){
@@ -56,7 +54,10 @@
             .attr( "value", this.id )
             .text( this.id )
         if( this.id == selected ){
-          $(option).attr("selected","true");
+          // Using jQuery to do:
+          //   $(option).attr("selected","true");
+          // causes Safari to die.
+          option.selected = true;
         }
         $("#menu").append( option );
       });
@@ -81,6 +82,15 @@
 <pre id="theCode"></pre>
 </div>
 </div>
+
+<textarea id="circle">
+startshape c
+
+rule c{
+  CIRCLE{}
+}  
+  
+</textarea>
 
 <textarea id="squares and circles" style="width:400px;height:400px">
 startshape scale
@@ -109,6 +119,18 @@ rule c .2 {
 
 
 </textarea>
+
+<textarea id="Golden Ratio">
+startshape GOLDEN
+
+
+rule GOLDEN{
+ SQUARE{ s 2 1 }
+ SQUARE{ s .01 1.803 b 1 r 56.31 x -.25}
+ GOLDEN{ s .5 r 90 b .08  x .75}
+}
+
+</textarea>  
 
 <textarea id="square fractal" style="width:400px;height:400px">
 startshape WHOLE
