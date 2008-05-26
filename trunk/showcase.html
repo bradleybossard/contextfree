@@ -87,9 +87,14 @@
 startshape c
 
 rule c{
-  CIRCLE{}
-}  
-  
+  CIRCLE{ s 3 }
+  c{ s .5 b .5 r 10 x 1}
+}
+
+rule c{
+  c { s .5}
+  c { s .5 flip 100 }
+} 
 </textarea>
 
 <textarea id="squares and circles" style="width:400px;height:400px">

@@ -172,7 +172,7 @@ function Tokenizer( ){
 	
 	this._load = function( inputField ) {
 		var el = document.getElementById( inputField );
-		this._input = el.innerHTML;	
+		this._input = el.value;	
 	}
 	
 	this.tokenize = function( inputField ) {
@@ -419,11 +419,6 @@ Renderer = {
 		Renderer.compiled = compiled;
 		
 		Renderer.canvas = document.getElementById( canvasId );
-
-		//afriendlier way to check to see if we're in IE emulating Canvas 
-    if (typeof(window.G_vmlCanvasManager)!="undefined") { 
-      Renderer.canvas=window.G_vmlCanvasManager.initElement(canvas);
-    }
                     		
 		Renderer.ctx = Renderer.canvas.getContext("2d");
 		
@@ -532,7 +527,7 @@ Renderer = {
 		Renderer.drawShape( shape, transform, color, priority );
 	},
 	
-	_draw: function( transform, drawFunc ) {
+	_draw: function( transform, drawFunc ) {	  
 	  // If this is a browser that supports transform and setTransform
 	  // we can use that. It's nice and fast. Currently, the only
 	  // browser to support this is Firefox 3.
@@ -691,6 +686,19 @@ Renderer = {
 		
 	}		
 }
+
+function contextFree( textId, canvasId ) {
+  var t = new Tokenizer();
+  var tokens = t.tokenize( textId );
+
+  var c = new Compiler();
+  var compiled = c.compile( tokens );
+
+  var r = Renderer;
+  Renderer.queue = [];
+  r.render( compiled, canvasId );
+}
+
 
 
 svdTransform  = (function(){
