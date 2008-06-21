@@ -25,11 +25,9 @@ function render( el ){
 	
 	var t = new Tokenizer();
 	var tokens = t.tokenize( el.id );
-	console.log( tokens );
 
 	var c = new Compiler();
 	var compiled = c.compile( tokens );
-	console.log( compiled );
 	
 	Renderer.render( compiled, "canvas" );
 }
