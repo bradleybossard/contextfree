@@ -538,41 +538,42 @@ Renderer = {
     }
     
     // If the browser does not support setTransform
-	  // then we do a lovely little hack that just
-	  // creates a new canvas (that doesn't have any transformation)
-	  // applied to it; deconvovle the desired transformation into
-	  // rotations, translations, and scales; perform those; and
-	  // finally, draw onto that canvas and blit it onto the output
-	  // canvas. Phew!
+	  // then we do a lovely little hack that "just" stores the original
+	  // transform state (i.e., in the prestine Identity state);
+	  // deconvovles the desired transformation into
+	  // rotations, translations, and scales; perform those;
+	  // draw our shape; and then restore the Identity state. Phew!
 	  
-	  // If we are in FF2, Safari, or Opera... so do the hack :(
-	  var c = document.createElement("canvas");
-	  c.width = Renderer.width;
-	  c.height = Renderer.height;
-	  c.id = "canvas_" + Math.random();
-
-	  var ctx = c.getContext("2d");
+	  // If we are in FF2, or Safari... so do the hack :(
 	  var scale = toAffineTransformation( Renderer._globalScale, 0,                0,
 	                                      Renderer._globalScale, Renderer.width/2, Renderer.height/2 );
 	  var trans = compose( scale, transform );
 	  
+    // We are currently at the global identity state for the transform.
+    // Store it so that we can mess with it without worry.
+    Renderer.ctx.save();
+    
 	  if( Renderer.ctx.transform ){
-		  ctx.transform( trans[0][0], trans[1][0], trans[0][1], trans[1][1], trans[0][2], trans[1][2] );
+		  Renderer.ctx.transform( trans[0][0], trans[1][0], trans[0][1], trans[1][1], trans[0][2], trans[1][2] );
+	    drawFunc( Renderer.ctx );		  
 	  } else
 	  {
       // summary: decompose a 2D matrix into translation, scaling, and rotation components
       //  The components should be applied in following order:
-      //  | [translate, rotate(angle2), scale, rotate(angle1)]
+      //  [translate, rotate(angle2), scale, rotate(angle1)]
       var svd = svdTransform( trans );
     
-      ctx.translate( svd.dx, svd.dy );
-      ctx.rotate( svd.angle2 );
-      ctx.scale( svd.sx, svd.sy );
-      ctx.rotate( svd.angle1 );
+      Renderer.ctx.translate( svd.dx, svd.dy );
+      Renderer.ctx.rotate( svd.angle2 );
+      Renderer.ctx.scale( svd.sx, svd.sy );
+      Renderer.ctx.rotate( svd.angle1 );  	  
     }
     
-	  drawFunc( ctx );
-	  Renderer.ctx.drawImage( c, 0, 0);
+	  drawFunc( Renderer.ctx );
+	  
+	  // Restore the global transform state to the identity.
+    Renderer.ctx.restore();
+
 	},
 	
 	drawShape: function( shape, transform, color, priority ){
