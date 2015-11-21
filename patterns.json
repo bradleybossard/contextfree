@@ -1,0 +1,29 @@
+{['
+startshape GOLDEN
+
+
+rule GOLDEN{
+ SQUARE{ s 2 1 }
+ SQUARE{ s .01 1.803 b 1 r 56.31 x -.25}
+ GOLDEN{ s .5 r 90 b .08  x .75}
+ ',
+'startshape WHOLE
+background{ b -1 }
+
+rule WHOLE {
+	QUAD { x -0.5 y -0.5 }
+	QUAD { x  0.5 y -0.5 }
+	QUAD { x  0.5 y  0.5 }
+	QUAD { x -0.5 y  0.5 }
+}
+
+rule QUAD {
+	SQUARE { s 0.8 b 1}
+}
+rule QUAD 5 {
+	WHOLE { s 0.45 r 2 }
+}
+rule QUAD 0.5 {
+}']
+}
+

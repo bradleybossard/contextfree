@@ -1,0 +1,1 @@
+{"goldenRule": "startshape GOLDEN\n\n\nrule GOLDEN {\nSQUARE {\ns 2 1\n} SQUARE {\ns .011 .803 b 1 r 56.31 x -.25\n} GOLDEN {\ns .5 r 90 b .08 x .75\n}"}
