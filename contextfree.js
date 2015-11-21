@@ -165,17 +165,12 @@ function Tokenizer() {
 				tokens.push( head.token );
 			}
 		}
-		
 		return tokens;
 	}
 	
-	this._load = function( inputField ) {
-		var el = document.getElementById( inputField );
-		this._input = el.value;	
-	}
-	
-	this.tokenize = function( inputField ) {
-		this._load( inputField );
+	this.tokenize = function(cfdg) {
+    console.log(cfdg);
+    this._input = cfdg;
 		return this._tokenize();		
 	}	
 }
