@@ -179,6 +179,7 @@ function Tokenizer() {
 	this.tokenize = function(cfdg) {
 		//this._load( inputField );
     this._input = cfdg;
+    console.log(this._input);
 		return this._tokenize();		
 	}	
 }
@@ -199,9 +200,7 @@ function Compiler() {
 		this.eat = function( token ){
 			if( compiler._keywords.indexOf(token) != -1 ) {
 				compiler._state = new compiler[ "_" + token + "State" ]();
-			}
-			else
-			{
+			} else {
 				console.log( token, " is not a general state token!" );
 			}
 		}

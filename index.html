@@ -103,14 +103,16 @@ function loadSelect() {
         .attr('id', key)
         .html(key)
         .val(value)
+        /*
         .on('click', function() {
           $('#code').html(value);
           render(value);
         })
+        */
         .appendTo(menu);
     });
     $menu.on('change', function() {
-      render();
+      render(this.value);
     });
   });
 }
