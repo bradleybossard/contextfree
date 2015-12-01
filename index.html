@@ -27,6 +27,15 @@
     <script>
       var $menu = $('#menu');
 
+      var canvas = document.createElement( "canvas" );
+      var container = $("#canvasContainer");
+      canvas.width = container.width();
+      canvas.height = container.height();
+      canvas.id = "theCanvas";
+    
+      $(container).find("#theCanvas").remove();
+      $(container).append( canvas );
+
       function render(cfdg) {
         var t = new Tokenizer();
         var tokens = t.tokenize(cfdg);
@@ -45,16 +54,6 @@
           // TODO(bradleybossard) : Create white background as default in renderer.
           document.body.style.backgroundColor = '#FFFFFF';
         }
-
-        var canvas = document.createElement( "canvas" );
-        var container = $("#canvasContainer");
-        canvas.width = container.width();
-        canvas.height = container.height();
-        canvas.id = "theCanvas";
-      
-        $(container).find("#theCanvas").remove();
-        $(container).append( canvas );
-
         var r = Renderer;
         r.render( compiled, "theCanvas" );
       }

@@ -21,7 +21,12 @@ Renderer = {
 		
 		Renderer._globalScale = 300;
 		Renderer._rendering = false;
-		
+
+    //Renderer.ctx.save();
+    Renderer.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    Renderer.ctx.clearRect(0, 0, Renderer.width, Renderer.height);
+    //Renderer.ctx.restore();
+
 		Renderer.drawBackground();
 		Renderer.draw();
 		Renderer.tick();
