@@ -17,7 +17,7 @@
         <input type="button" value="Redraw" onclick="drawChoice();"/>
         <code>(You can also use Command-R)</code>
         <pre></pre>
-        <pre id="theCode"></pre>
+        <pre id="code"></pre>
     </div>
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>		
@@ -62,6 +62,7 @@
       function loadSelect() {
         $.getJSON('cfdgs-pretty.json', function(data) {
           var $menu = $('#menu');
+          var $code = $('#code');
           $.each(data, function(key, value) {
             $('<option></option>')
               .attr('id', key)
@@ -70,6 +71,7 @@
               .appendTo(menu);
           });
           $menu.on('change', function() {
+            $code.html(this.value); 
             render(this.value);
           })
           .attr('selected', true)
