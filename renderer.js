@@ -28,7 +28,7 @@ Renderer = {
 	},
 	
 	tick: function(){
-	  if( Renderer.queue.length > 0 ){
+	  if( Renderer.queue.length > 0 ) {
 	    Renderer._rendering = true;
   	  var start = new Date();
       var concurrent = Math.min( Renderer.queue.length - 1, Renderer._maxThreads );
@@ -149,9 +149,11 @@ Renderer = {
 				  
 				  var tD = new threadedDraw( item.shape, localTransform, localColor );
 				  
-				  if( priority == 1 ){ Renderer.queue.unshift(tD); }
-				  else{ Renderer.queue.push( tD ); }
-				  					
+				  if( priority == 1 ) {
+            Renderer.queue.unshift(tD);
+          } else {
+            Renderer.queue.push( tD );
+          }
 					break;
 			}	    
 	  }
@@ -186,16 +188,18 @@ Renderer = {
 				
 		// Scaling
 		var s = getKeyValue( ["s", "size"], 1, adjs );
-		if( typeof(s) == "number" ){ s = [s,s]; }
+		if(typeof(s) == "number") {
+      s = [s,s];
+    }
 		
-		if( s != 1 ){
+		if(s != 1) {
 			var scale = toAffineTransformation(s[0], 0, 0, s[1], 0, 0 );
 			transform = compose( transform, scale );
 		}						
 				
 		// Flip around a line through the origin;
 		var f = getKeyValue( ["f", "flip"], null, adjs );
-		if( f != null ){
+		if(f != null) {
 		  // Flip 0 means to flip along the X axis. Flip 90 means to flip along the Y axis.
 		  // That's why the flip vector (vX, vY) is Pi/2 radians further along than expected. 
 			vX = Math.cos( -2*Math.PI * f/360 );
