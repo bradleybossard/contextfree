@@ -10,34 +10,23 @@
 		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>		
 		
 		<script>
-    //function display( id ){
     function render(cfdg) {
-      // We need to unescape the id because it is coming in via the hash, and
-      // URL can have weird encodings (i.e., "%20" instead of " ").
-      //var theId = unescape(id);
-    	//document.getElementById("theCode").innerHTML = document.getElementById(theId).value;
-
       var t = new Tokenizer();
       var tokens = t.tokenize(cfdg);
       console.log('tokens.length = ' + tokens.length);
 
       var c = new Compiler();
       var compiled = c.compile(tokens);
-/*
-    	var t = new Tokenizer();
-    	var tokens = t.tokenize( theId );
-
-    	var c = new Compiler();
-    	var compiled = c.compile( tokens );
-*/
+      console.log(compiled);
     	
-/*
     	if( compiled.background ){
       	var back = compiled.background;
     	  var backcolor = hsl2rgb( back.h|.001, back.sat|.01, back.b|1, back.a|1 );
     	  document.body.style.backgroundColor = backcolor;
-    	}
-*/
+      } else {
+        // TODO(bradleybossard) : Create white background as default in renderer.
+    	  document.body.style.backgroundColor = '#FFFFFF';
+      }
 
       var canvas = document.createElement( "canvas" );
       var container = $("#canvasContainer");
@@ -49,31 +38,9 @@
       $(container).append( canvas );
 
     	var r = Renderer;
+    	//var r = new Renderer();
     	r.render( compiled, "theCanvas" );
     }
- /*   
-    function drawChoice(){
-      var toDisplay = $("#menu option:selected" ).text();
-      location.assign( "#"+toDisplay );
-      location.reload();
-    }
-    
-    function populateMenu( selected ){
-      $("textarea").each( function() {
-        var option = document.createElement("option");
-        $(option)
-            .attr( "value", this.id )
-            .text( this.id )
-        if( this.id == selected ){
-          // Using jQuery to do:
-          //   $(option).attr("selected","true");
-          // causes Safari to die.
-          option.selected = true;
-        }
-        $("#menu").append( option );
-      });
-    }
-*/
 		</script>
 
   </head>
@@ -120,8 +87,6 @@ function loadSelect() {
 
 if( location.hash ){ var theId = location.hash.substring(1) }
 else{ var theId = "mtree"; }
-//populateMenu( theId );
-//display( theId );
 loadSelect();
 
 </script>

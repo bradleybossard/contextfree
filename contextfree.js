@@ -179,7 +179,7 @@ function Tokenizer() {
 	this.tokenize = function(cfdg) {
 		//this._load( inputField );
     this._input = cfdg;
-    console.log(this._input);
+    //console.log(this._input);
 		return this._tokenize();		
 	}	
 }
@@ -443,8 +443,12 @@ Renderer = {
         Renderer.queue.shift().start();
       }
       var end = new Date();
-      
-	    setTimeout( Renderer.tick, 2*(end-start) );
+     
+      // TODO(bradleybossard) : This handles animating the canvas, but can cause issues if
+      // the user tries to render another image before the previous one completes, therefore
+      // I removed the animation for now.
+	    //setTimeout( Renderer.tick, 2*(end-start) );
+	    Renderer.tick();
 	  }
 	  Renderer._rendering = false;
 	},
