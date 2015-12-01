@@ -5,7 +5,6 @@
   </head>
 
   <body>
-
     <div id="choose">
       <code>Choose a program:</code><br/>
       <select id="menu"></select>
@@ -14,9 +13,8 @@
     <div id="canvasContainer"></div>
 
     <div class="background">
-        <input type="button" value="Redraw" onclick="drawChoice();"/>
+      <button id="redraw">Redraw</button>
         <code>(You can also use Command-R)</code>
-        <pre></pre>
         <pre id="code"></pre>
     </div>
 
@@ -27,6 +25,8 @@
     <script src="renderer.js"></script>
 
     <script>
+      var $menu = $('#menu');
+
       function render(cfdg) {
         var t = new Tokenizer();
         var tokens = t.tokenize(cfdg);
@@ -61,7 +61,6 @@
 
       function loadSelect() {
         $.getJSON('cfdgs-pretty.json', function(data) {
-          var $menu = $('#menu');
           var $code = $('#code');
           $.each(data, function(key, value) {
             $('<option></option>')
@@ -78,6 +77,10 @@
           .change();
         });
       }
+
+    $('#redraw').on('click', function() {
+      $menu.change();
+    });
 
     loadSelect();
 
