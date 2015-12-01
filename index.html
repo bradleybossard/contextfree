@@ -9,6 +9,7 @@
     <div id="choose">
       <code>Choose a program:</code><br/>
       <select id="menu"></select>
+      <div id="numTokens"></div>
     </div>
     <div id="canvasContainer"></div>
 
@@ -33,6 +34,7 @@
         var t = new Tokenizer();
         var tokens = t.tokenize(cfdg);
         console.log('tokens.length = ' + tokens.length);
+        $('#numTokens').html('numTokens = ' + tokens.length);
 
         var c = new Compiler();
         var compiled = c.compile(tokens);
