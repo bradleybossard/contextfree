@@ -1,0 +1,29 @@
+textarea {
+  display: none;
+}
+
+#choose {
+  float:right;
+}
+
+code {
+  font-weight: bold;
+}
+
+.background {
+  width: 100%;
+  background-color: #cacaca;
+  position: absolute;
+  left: 0px;
+  padding-top: 5px;
+  border-top: 1px solid #666;
+}
+
+.padding {
+  padding: 20px;
+}
+
+#canvasContainer {
+  width: 1200px;
+  height: 1000px;
+}

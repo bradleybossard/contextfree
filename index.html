@@ -1,98 +1,85 @@
 <html>
 	<head>
 	  <title>ContextFree.js</title>
-		<style>
-		  textarea {display: none;} #choose{ float:right; } code{ font-weight: bold; }
-		  .background{ width: 100%; background-color: #cacaca; position: absolute; left: 0px; padding-top: 5px; border-top: 1px solid #666;}
-		  .padding{ padding: 20px; }
-	  </style>
-		<script src="utils.js"></script>
-		<script src="tokenizer.js"></script>
-		<script src="compiler.js"></script>
-		<script src="contextfree.js"></script>
-		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>		
-		
-		<script>
-    function render(cfdg) {
-      var t = new Tokenizer();
-      var tokens = t.tokenize(cfdg);
-      console.log('tokens.length = ' + tokens.length);
-
-      var c = new Compiler();
-      var compiled = c.compile(tokens);
-      console.log(compiled);
-    	
-    	if( compiled.background ){
-      	var back = compiled.background;
-    	  var backcolor = hsl2rgb( back.h|.001, back.sat|.01, back.b|1, back.a|1 );
-    	  document.body.style.backgroundColor = backcolor;
-      } else {
-        // TODO(bradleybossard) : Create white background as default in renderer.
-    	  document.body.style.backgroundColor = '#FFFFFF';
-      }
-
-      var canvas = document.createElement( "canvas" );
-      var container = $("#canvasContainer");
-      canvas.width = container.width();
-      canvas.height = container.height();
-      canvas.id = "theCanvas";
-    
-      $(container).find("#theCanvas").remove();
-      $(container).append( canvas );
-
-    	var r = Renderer;
-    	//var r = new Renderer();
-    	r.render( compiled, "theCanvas" );
-    }
-		</script>
-
+    <link rel="stylesheet" type="text/css" href="style.css">
   </head>
 
-<body>
-  <div id="canvasContainer" style="width:1200px;height:1000px;"></div>
+  <body>
+    <div id="canvasContainer"></div>
 
-<div class="background">
-  <div class="padding">
-<div id="choose"><code>Choose a program:</code><br/><select id="menu" multiple="multiple"> </select></div>
+    <div class="background">
+      <div class="padding">
+        <div id="choose">
+          <code>Choose a program:</code><br/>
+          <select id="menu"></select>
+        </div>
 
-<input type="button" value="Redraw" onclick="drawChoice();"/> <code>(You can also use Command-R)</code>
-<pre></pre>
-<pre id="theCode"></pre>
-</div>
-</div>
+        <input type="button" value="Redraw" onclick="drawChoice();"/>
+        <code>(You can also use Command-R)</code>
+        <pre></pre>
+        <pre id="theCode"></pre>
+      </div>
+    </div>
 
-<script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>		
+    <script src="utils.js"></script>
+    <script src="tokenizer.js"></script>
+    <script src="compiler.js"></script>
+    <script src="renderer.js"></script>
 
+    <script>
+      function render(cfdg) {
+        var t = new Tokenizer();
+        var tokens = t.tokenize(cfdg);
+        console.log('tokens.length = ' + tokens.length);
 
+        var c = new Compiler();
+        var compiled = c.compile(tokens);
+        console.log(compiled);
+        
+        if( compiled.background ){
+          var back = compiled.background;
+          var backcolor = hsl2rgb( back.h|.001, back.sat|.01, back.b|1, back.a|1 );
+          document.body.style.backgroundColor = backcolor;
+        } else {
+          // TODO(bradleybossard) : Create white background as default in renderer.
+          document.body.style.backgroundColor = '#FFFFFF';
+        }
 
-function loadSelect() {
-  $.getJSON('cfdgs-pretty.json', function(data) {
-    var $menu = $('#menu');
-    $.each(data, function(key, value) {
-      $('<option></option>')
-        .attr('id', key)
-        .html(key)
-        .val(value)
-        /*
-        .on('click', function() {
-          $('#code').html(value);
-          render(value);
-        })
-        */
-        .appendTo(menu);
-    });
-    $menu.on('change', function() {
-      render(this.value);
-    });
-  });
-}
+        var canvas = document.createElement( "canvas" );
+        var container = $("#canvasContainer");
+        canvas.width = container.width();
+        canvas.height = container.height();
+        canvas.id = "theCanvas";
+      
+        $(container).find("#theCanvas").remove();
+        $(container).append( canvas );
 
+        var r = Renderer;
+        r.render( compiled, "theCanvas" );
+      }
 
-if( location.hash ){ var theId = location.hash.substring(1) }
-else{ var theId = "mtree"; }
-loadSelect();
+      function loadSelect() {
+        $.getJSON('cfdgs-pretty.json', function(data) {
+          var $menu = $('#menu');
+          $.each(data, function(key, value) {
+            $('<option></option>')
+              .attr('id', key)
+              .html(key)
+              .val(value)
+              .appendTo(menu);
+          });
+          $menu.on('change', function() {
+            render(this.value);
+          })
+          .attr('selected', true)
+          .change();
+        });
+      }
 
-</script>
+    loadSelect();
 
-</body>
+    </script>
+
+  </body>
 </html>
