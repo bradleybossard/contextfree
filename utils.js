@@ -1,15 +1,3 @@
-function min( list ){
-	var min = { value: list[0], index: 0 };
-	for( var i in list ) {
-		if ( list[i] < min.value ){
-			min.value = list[i];
-			min.index = i;
-		}
-	}
-	
-	return min;
-}
-
 Object.forceExtend = function(dst, src) {
   for (var i in src) {
     try{ dst[i] = src[i] } catch(e) {}
@@ -169,6 +157,4 @@ function compose(m1, m2) {
   }
   return result;
 }
-
-
 

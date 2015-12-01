@@ -10,28 +10,27 @@ function Tokenizer() {
 		var stops = [];
 		var self = this;
 		
-		for( var i=0; i<this._gStopChars.length; i++ ) {
-		  var stopChar = this._gStopChars[i];
-			var foundPos = self._input.indexOf( stopChar, pos );
-			if( foundPos != -1 ){
+		this._gStopChars.forEach(function(i) {
+			var foundPos = self._input.indexOf( i, pos );
+			if( foundPos !== -1 ){
 				stops.push( foundPos + 1 )
 			}		  
-		}
-		
-		var m = min(stops);
-		var stopChar = this._gStopChars[ m.index ];
-		var stopPos = m.value;
-		
-		if( typeof(m.value) == "undefined" ){ return null; }
+		});
+	
+    if (stops.length === 0) {
+      return;
+    }
+
+    var i = stops.indexOf(Math.min.apply(Math, stops));
+
+		var stopChar = this._gStopChars[i];
+		var stopPos = stops[i];
 		
 		var token = this._input.substr(pos, stopPos-pos);
+    // Strip whitespace
+		token = token.replace(/[ \n\r\t]/, "" );
 		
-		// Remove whitespace characters as they can't be
-		// tokens. Brackets can be tokens, so those don't
-		// get removed.
-		token = token.replace( /[ \n\r\t]/, "" );
-		
-		return { token: token, lastPos: stopPos }
+		return { token: token, lastPos: stopPos };
 	}
 	
 	this._tokenize = function(){
@@ -40,16 +39,14 @@ function Tokenizer() {
 		
 		var tokens = [];
 		
-		var head = {lastPos: 0}
-		while( 1==1 ){
-			head = this._tokenizeNext( head.lastPos );
-			
-			if( head == null ){ break; }
-			
-			if( head.token ){
+		var head = { lastPos: 0 };
+
+		do {
+      head = this._tokenizeNext( head.lastPos );
+			if( head && head.token ) {
 				tokens.push( head.token );
 			}
-		}
+		} while (head);
 		
 		return tokens;
 	}
