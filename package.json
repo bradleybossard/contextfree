@@ -1,0 +1,24 @@
+{
+  "name": "cfdg",
+  "version": "1.0.0",
+  "description": "contextfree.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bradleybossard/contextfree.git"
+  },
+  "keywords": [
+    "cfdg",
+    "context",
+    "free"
+  ],
+  "author": "Bradley Bossard <bradleybossard@gmail.com> (http://bradleybossard.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bradleybossard/contextfree/issues"
+  },
+  "homepage": "https://github.com/bradleybossard/contextfree#readme"
+}
