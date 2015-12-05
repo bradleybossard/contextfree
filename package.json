@@ -20,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/bradleybossard/contextfree/issues"
   },
-  "homepage": "https://github.com/bradleybossard/contextfree#readme"
+  "homepage": "https://github.com/bradleybossard/contextfree#readme",
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "mocha": "^2.3.4"
+  }
 }
