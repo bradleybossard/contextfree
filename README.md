@@ -17,4 +17,17 @@ To release
 - git push --tags
 - npm publish
 - npm info <cdfg> to verify package was pushed
+- npm install cfdg to use in a project
 
+To release a beta version
+
+- Make changes
+- Edit package.json with version -beta.<beta-version-release> i.e. "version": "1.4.0-beta.0",
+- git add "*"
+- git commit -m "Commit message"
+- git tag <package.json version number (with 0beta.0)>
+- git push
+- git push --tags
+- npm publish --tag beta
+- npm info <cdfg> to verify package was pushed, release will still point to stable, new beta will point to beta version
+- npm install cfdg@beta to use in a project
