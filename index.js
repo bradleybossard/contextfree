@@ -1,9 +1,13 @@
 
-
 function compile(cfdg) {
-  console.log(cfdg);
+  return true;
+}
+
+function render(compiled) {
+  return true;
 }
 
 module.exports = {
-  compile: compile
+  compile: compile,
+  render: render,
 };
