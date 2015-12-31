@@ -1,5 +1,7 @@
 contextfree.js
 
+[![Travis](https://img.shields.io/travis/bradleybossard/contextfree.svg)](https://travis-ci.org/bradleybossard/contextfree)
+
 Reviving some old code originally written by Aza Raskin.  Modernizing it for the frontend era.
 
 - [ ] Move CFDG grammers from index.html to JSON format
