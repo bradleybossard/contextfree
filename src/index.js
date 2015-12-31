@@ -1,8 +1,11 @@
-var compiler = require('./compiler.js');
+var tokenizer = require('./tokenizer.js');
+//var compiler = require('./compiler.js');
 
 function compile(cfdg) {
-  var c = new compiler.compiler();
-  return true;
+  var t = new tokenizer.tokenizer();
+  //var c = new compiler.compiler();
+  return t.tokenize(cfdg);
+  //return true;
 }
 
 function render(compiled) {
