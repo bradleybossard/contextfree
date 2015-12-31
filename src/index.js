@@ -1,5 +1,7 @@
+var compiler = require('./compiler.js');
 
 function compile(cfdg) {
+  var c = new compiler.compiler();
   return true;
 }
 

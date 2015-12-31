@@ -2,7 +2,13 @@
 // TODO: Handle the shape*[] syntax
 // TODO: Handle the | argument
 // TODO: Handle comments
-function Compiler() {
+
+module.exports = {
+  //Compiler: Compiler
+
+//function Compiler() {
+//var Compiler = function() {
+  compiler : function() {
 	this._keywords = ["startshape", "rule", "background"];
 	this._compiled = {};
 	this._state = null;	
@@ -156,3 +162,4 @@ function Compiler() {
 	};
 }
 
+};

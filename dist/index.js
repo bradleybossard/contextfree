@@ -1,5 +1,7 @@
+var compiler = require('compiler');
 
 function compile(cfdg) {
+  var compiler = Compiler();
   return true;
 }
 
