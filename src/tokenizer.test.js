@@ -1,12 +1,13 @@
 var expect = require('chai').expect;
-var cfdg = require('./index');
+var tokenizer = require('./tokenizer');
 var cfdgsExamples = require('../cfdgs-pretty.json');
 
-describe('cfdg', function() {
-/*
-  it('compile', function() {
+describe('tokenizer', function() {
+  it('should tokenize circle grammar', function() {
     var circle = cfdgsExamples['circle'];
-    var actual = cfdg.compile(circle);
+
+    var t = new tokenizer.tokenizer();
+    var actual = t.tokenize(circle);
 
     var expected = [ 'startshape', 'c', 'rule', 'c', '{', 'CIRCLE', '{', 's',
                  '3', '}', 'c', '{', 's', '.5', 'b', '.5', 'r', '10', 'x', '1',
@@ -15,10 +16,4 @@ describe('cfdg', function() {
 
     expect(actual).to.have.members(expected); 
   });
-
-
-  it('render', function() {
-    expect(cfdg.render()).to.be.true;
-  });
-*/
 });

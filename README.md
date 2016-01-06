@@ -33,3 +33,8 @@ To release a beta version
 - npm publish --tag beta
 - npm info <cdfg> to verify package was pushed, release will still point to stable, new beta will point to beta version
 - npm install cfdg@beta to use in a project
+
+
+## Notes
+
+* [nearley - potential parser replacement](http://nearley.js.org/)
