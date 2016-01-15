@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "scripts": {
     "prebuild": "rm -rf dist && mkdir dist",
-    "build": "babel src/index.js src/tokenizer.js -o dist/index.js",
+    "build": "babel src/index.js src/tokenizer.js src/compiler.js -o dist/index.js",
     "test": "mocha src/*.test.js -w",
     "test:single": "istanbul cover -x *.test.js _mocha -- -R spec src/*.test.js",
     "check-coverage": "istanbul check-coverage --statements 0 --branches 0 --functions 0  --lines 0",

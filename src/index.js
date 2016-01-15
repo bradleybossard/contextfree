@@ -1,5 +1,5 @@
 var tokenizer = require('./tokenizer.js');
-//var compiler = require('./compiler.js');
+var compiler = require('./compiler.js');
 
 function compile(cfdg) {
   var t = new tokenizer.tokenizer();
