@@ -1,43 +1,39 @@
 var expect = require('chai').expect;
+var fs = require('fs');
 var tokenizer = require('./tokenizer');
 var cfdgsExamples = require('../cfdgs-pretty.json');
 
 describe('tokenizer', function() {
-  it('should tokenize circle grammar', function() {
-    var grammar = cfdgsExamples['circle'];
-    var t = new tokenizer.tokenizer();
-    var actual = t.tokenize(grammar);
+  /*
+   * This is not a test, it just creates the testdata file used in the next test.
+  it('should tokenize all', function() {
+    var tokenized = {};
+    for (var i in cfdgsExamples) {
+      var grammar = cfdgsExamples[i];
+      var t = new tokenizer.tokenizer();
+      var actual = t.tokenize(grammar);
+      tokenized[i] = actual;
+    };
+    var tokenisedString = JSON.stringify(tokenized);
 
-    var expected = [
-      'startshape', 'c', 'rule', 'c', '{', 'CIRCLE', '{', 's', '3', '}', 'c',
-      '{', 's', '.5', 'b', '.5', 'r', '10', 'x', '1', '}', '}', 'rule', 'c',
-      '{', 'c', '{', 's', '.5', '}', 'c', '{', 's', '.5', 'flip', '100', '}',
-      '}' ]; 
-
-    expect(actual).to.have.members(expected); 
+    fs.writeFile("./tokenized.json", tokenisedString, function(err) {
+      if(err) {
+        return console.log(err);
+      }
+      console.log("The file was saved!");
+    });
   });
+  */
 
-
-  it('should tokenize snakes grammar', function() {
-    var grammar = cfdgsExamples['snakes'];
-    var t = new tokenizer.tokenizer();
-    var actual = t.tokenize(grammar);
-
-    var expected = [
-      'startshape', 'starter', 'rule', 'starter', '{', 'snakeparty', '{', 's',
-      '.5', 'x', '-1', 'y', '-.5', '}', '}', 'rule', 'snakeparty', '{', 'snake',
-      '{', '}', 'snakeparty', '{', 'y', '1.0', 's', '0.95', 'r', '-15', '}',
-      '}', 'rule', 'snakeeye', '{', 'CIRCLE', '{', 'b', '1', '}', 'CIRCLE', '{',
-      'b', '-1', 's', '0.4', 'x', '-0.35', '}', '}', 'rule', 'snake', '{',
-      'snaketail', '{', '}', 'snakeeye', '{', 's', '0.4', 'x', '-0.2', 'y',
-      '0.2', '}', 'snakemouth', '{', 'x', '-0.5', 'y', '-0.2', 's', '0.3', '}',
-      '}', 'rule', 'snaketail', '{', 'CIRCLE', '{', '}', 'SQUARE', '{', 'x',
-      '0.32', 'y', '0.1', 's', '0.5', 'r', '-30', '}', 'SQUARE', '{', 'x',
-      '0.32', 'y', '-0.1', 's', '0.5', 'r', '30', '}', 'snaketail', '{', 'x',
-      '0.8', 's', '0.7', '}', '}', 'rule', 'snakemouth', '{', 'SQUARE', '{',
-      'b', '1', 'r', '65', '}', '}' ];
-
-    expect(actual).to.have.members(expected); 
+  it('should tokenize circle grammar', function() {
+    var tokenized = JSON.parse(fs.readFileSync('./tokenized.json', 'utf8'));
+    for (var i in cfdgsExamples) {
+      var grammar = cfdgsExamples[i];
+      var t = new tokenizer.tokenizer();
+      var actual = t.tokenize(grammar);
+      var expected = tokenized[i];
+      expect(actual).to.have.members(expected); 
+    }
   });
 
 /*
@@ -82,6 +78,5 @@ Art Net
 Chiaroscuro
 Ancient Map
 */
-
 
 });
