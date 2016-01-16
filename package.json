@@ -4,6 +4,7 @@
   "main": "dist/index.js",
   "scripts": {
     "prebuild": "rm -rf dist && mkdir dist",
+    "lint": "eslint src/*.js",
     "build": "babel src/index.js src/tokenizer.js src/compiler.js -o dist/index.js",
     "test": "mocha src/*.test.js -w",
     "test:single": "istanbul cover -x *.test.js _mocha -- -R spec src/*.test.js",
@@ -34,6 +35,9 @@
     "codecov.io": "^0.1.6",
     "commitizen": "^2.4.6",
     "cz-conventional-changelog": "^1.1.5",
+    "eslint": "^1.10.3",
+    "eslint-cli": "^1.0.0",
+    "eslint-config-google": "^0.3.0",
     "ghooks": "^1.0.1",
     "istanbul": "^0.4.1",
     "mocha": "2.3.4",
