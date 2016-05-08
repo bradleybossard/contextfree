@@ -3,6 +3,17 @@
 // TODO: Handle the | argument
 // TODO: Handle comments
 
+Object.forceExtend = function(dst, src) {
+  for (var i in src) {
+    try{ dst[i] = src[i] } catch(e) {}
+  }
+  return dst
+}
+// In case Object.extend isn't defined already, set it to Object.forceExtend.
+if (!Object.extend) {
+  Object.extend = Object.forceExtend
+}  
+
 module.exports = {
   //Compiler: Compiler
 

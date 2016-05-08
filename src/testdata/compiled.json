@@ -1,0 +1,1 @@
+{"circle":{"startshape":"c","c":[{"weight":1,"draw":[{"shape":"CIRCLE","s":3},{"shape":"c","s":0.5,"b":0.5,"r":10,"x":1}]},{"weight":1,"draw":[{"shape":"c","s":0.5},{"shape":"c","s":0.5,"flip":100}]}]}}
