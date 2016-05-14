@@ -6,16 +6,14 @@ var cfdgsExamples = require('../cfdgs-pretty-reproducible.json');
 
 var tokenized = {};
 var compiled = {};
-var t = new tokenizer.tokenizer();
 var c = new compiler.compiler();
 for (var i in cfdgsExamples) {
   var grammar = cfdgsExamples[i];
-  var tokens = t.tokenize(grammar);
+  var tokens = tokenizer.tokenize(grammar);
   tokenized[i] = tokens.slice(0);
   compiled[i] = c.compile(tokens);
 }
 var tokenizedString = JSON.stringify(tokenized);
-console.log(tokenizedString);
 var compiledString = JSON.stringify(compiled);
 
 var tokenizedFilepath = "./src/testdata/tokenized.json";
@@ -34,3 +32,5 @@ fs.writeFile(compiledFilepath, compiledString, function(err) {
   }
   console.log("The file " + compiledFilepath + " was saved!");
 });
+
+
