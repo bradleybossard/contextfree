@@ -8,10 +8,8 @@ describe('tokenizer', function() {
     var tokenized = JSON.parse(fs.readFileSync('./src/testdata/tokenized.json', 'utf8'));
     for (var i in cfdgsExamples) {
       var grammar = cfdgsExamples[i];
-      var t = new tokenizer.tokenizer();
-      var actual = t.tokenize(grammar);
+      var actual = tokenizer.tokenize(grammar);
       var expected = tokenized[i];
-      //console.log(actual);
       expect(actual).to.have.members(expected); 
     }
   });
