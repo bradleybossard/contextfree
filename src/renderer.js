@@ -11,8 +11,13 @@ module.exports = {
     
     queue = [];
 
-    this.render = function( compiled, canvas) {
+    random = -1;
+
+    this.render = function( compiled, canvas, random) {
       this.compiled = compiled;
+      if (random > 0 && random < 1) {
+        this.random = random;
+      }
       ctx = canvas.getContext("2d");
       
       width = canvas.width;
@@ -66,6 +71,7 @@ module.exports = {
     },
     
     this.drawRule = function( ruleName, transform, color, priority ){
+      //console.log('drawRule');
       // When things get too small, we can stop rendering.
       // Too small, in this case, means less than half a pixel.
       if( Math.abs(transform[0][1]) * _globalScale < .5 && Math.abs(transform[1][1]) * _globalScale < .5 ){
@@ -79,9 +85,9 @@ module.exports = {
       for( var i=0; i<choices.length; i++) {
         sum += choices[i].weight;
       }
-      
-      var r = Math.random() * sum;
-      
+     
+      console.log('this.random', this.random);
+      var r = (this.random > 0) ? this.random * sum : Math.random() * sum;
       sum = 0;
       
       for( var i=0; i <= choices.length-1; i++) {
@@ -148,7 +154,6 @@ module.exports = {
             }
             
             var tD = new threadedDraw( item.shape, localTransform, localColor );
-           
             if( priority == 1 ) {
               //Renderer.queue.unshift(tD);
               queue.unshift(tD);

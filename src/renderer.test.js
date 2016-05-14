@@ -18,9 +18,8 @@ describe('renderer', function() {
 
     for (var i in compiled) {
       var c = compiled[i];
-      console.log(c);
-      var actual = r.render(c, canvas);
-      fs.writeFile('output/out.png', canvas.toBuffer());
+      var actual = r.render(c, canvas, 0.24);
+      fs.writeFile('output/' + i + '.png', canvas.toBuffer());
     }
   });
 });

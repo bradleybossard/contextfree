@@ -15,19 +15,15 @@ if (!Object.extend) {
 }  
 
 module.exports = {
-  //Compiler: Compiler
-
-//function Compiler() {
-//var Compiler = function() {
   compiler : function() {
 	this._keywords = ["startshape", "rule", "background"];
 	this._compiled = {};
 	this._state = null;	
 	var compiler = this;
 	
-	this._generalState = function(){
+	this._generalState = function() {
 
-		this.eat = function( token ){
+		this.eat = function( token ) {
 			if( compiler._keywords.indexOf(token) != -1 ) {
 				compiler._state = new compiler[ "_" + token + "State" ]();
 			} else {
@@ -96,7 +92,6 @@ module.exports = {
 		// Override me!
 		this.onDone = function( obj ){ }
 	}
-
 
 	this._ruleState = function(){
 		// The first token is the name of the rule. After that comes

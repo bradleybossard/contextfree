@@ -11,6 +11,7 @@ describe('tokenizer', function() {
       var t = new tokenizer.tokenizer();
       var actual = t.tokenize(grammar);
       var expected = tokenized[i];
+      //console.log(actual);
       expect(actual).to.have.members(expected); 
     }
   });
