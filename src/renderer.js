@@ -56,11 +56,11 @@ module.exports = {
     },
     this.drawBackground = function() {
       if( this.compiled.background ) {
-        var colorAdj = compiled.background;
+        var colorAdj = this.compiled.background;
         var backgroundColor = {h:0, s:0, b:1, a:1};
         var c = utils.adjustColor( backgroundColor, colorAdj );
         ctx.fillStyle = utils.colorToRgba( c );
-        ctx.fillRect( 0, 0, Renderer.width, Renderer.width );
+        ctx.fillRect( 0, 0, width, height);
       }
     },
     

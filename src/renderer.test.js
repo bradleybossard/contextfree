@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-
+var fs = require('fs');
 var renderer = require('./renderer');
 var Canvas = require('canvas');
 
@@ -10,8 +10,6 @@ describe('renderer', function() {
     var Image = Canvas.Image;
     var canvas = new Canvas(width, height);
     var ctx = canvas.getContext('2d');
-
-    var fs = require('fs');
 
     var compiled = JSON.parse(fs.readFileSync('./src/testdata/compiled.json', 'utf8'));
     var r = new renderer.renderer()
