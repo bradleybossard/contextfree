@@ -11,13 +11,10 @@ module.exports = {
     
     queue = [];
 
-    random = -1;
-
-    this.render = function( compiled, canvas, random) {
+    this.render = function( compiled, canvas, seed) {
       this.compiled = compiled;
-      if (random > 0 && random < 1) {
-        this.random = random;
-      }
+      // If a seed is proved, use it, other generate a random seed.
+      Math.seed = (seed !== undefined) ? seed : Math.floor(Math.random() * 10000);
       ctx = canvas.getContext("2d");
       
       width = canvas.width;
@@ -85,7 +82,7 @@ module.exports = {
         sum += choices[i].weight;
       }
      
-      var r = (this.random > 0) ? this.random * sum : Math.random() * sum;
+      var r = Math.seededRandom() * sum;
       sum = 0;
       
       for( var i=0; i <= choices.length-1; i++) {
