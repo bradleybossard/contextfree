@@ -139,10 +139,10 @@ module.exports = {
 			compiler._state = new (function(){
 				this._state = new compiler._abstractArgumentState();
 				
-				this._state.onDone = function( arguments ) {					
+				this._state.onDone = function( args ) {					
 					var shape = { shape: shapeName };
-					for( var key in arguments ){
-						shape[key] = arguments[key];
+					for( var key in args ){
+						shape[key] = args[key];
 					}
 					
 					// We are always adding to the lastest rule we've created.
