@@ -1,5 +1,14 @@
+# Node modules
 node_modules
+
+# For my own development setup
 docker-compose.yml
+
+# Instanbul coverage report
 coverage
+
+# From node
 npm-debug.log
+
+# Folder containing output images
 output
