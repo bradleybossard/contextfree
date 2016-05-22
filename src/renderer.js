@@ -57,8 +57,10 @@ module.exports = {
     this.drawBackground = function() {
       if( this.compiled.background ) {
         var colorAdj = this.compiled.background;
+        console.log(colorAdj);
         var backgroundColor = {h:0, s:0, b:1, a:1};
         var c = utils.adjustColor( backgroundColor, colorAdj );
+        console.log(c);
         ctx.fillStyle = utils.colorToRgba( c );
         ctx.fillRect( 0, 0, width, height);
       }
@@ -71,7 +73,6 @@ module.exports = {
     },
     
     this.drawRule = function( ruleName, transform, color, priority ){
-      //console.log('drawRule');
       // When things get too small, we can stop rendering.
       // Too small, in this case, means less than half a pixel.
       if( Math.abs(transform[0][1]) * _globalScale < .5 && Math.abs(transform[1][1]) * _globalScale < .5 ){
@@ -86,7 +87,6 @@ module.exports = {
         sum += choices[i].weight;
       }
      
-      console.log('this.random', this.random);
       var r = (this.random > 0) ? this.random * sum : Math.random() * sum;
       sum = 0;
       
@@ -100,49 +100,39 @@ module.exports = {
       
       this.drawShape( shape, transform, color, priority );
     },
-    this._draw = function( transform, drawFunc ) {	  
-      this.setTransform( transform );
-      drawFunc( ctx );
-      return;
-    },
     this.drawShape = function( shape, transform, color, priority ) {
       for( i=0; i<shape.draw.length; i++){
         var item = shape.draw[i];
         var localTransform = this.adjustTransform( item, transform );
         var localColor = utils.adjustColor( color, item );
+        ctx.fillStyle = utils.colorToRgba( localColor );
         
         switch( item.shape ) {
           case "CIRCLE":					
-            this._draw( localTransform, function(ctx) {
-              ctx.beginPath();
-              ctx.fillStyle = utils.colorToRgba( localColor );
-              ctx.arc( 0, 0, .5, 0, 2*Math.PI, true )
-              ctx.fill();
-              ctx.closePath();					  
-            });
+            this.setTransform( localTransform );
+            ctx.beginPath();
+            ctx.arc( 0, 0, .5, 0, 2*Math.PI, true )
+            ctx.fill();
+            ctx.closePath();					  
             break;
             
           case "SQUARE":
-            this._draw( localTransform, function(ctx) {
-              ctx.beginPath();
-              ctx.fillStyle = utils.colorToRgba( localColor );
-              ctx.fillRect(-.5, -.5, 1, 1);
-              ctx.closePath();					  
-            });
+            this.setTransform( localTransform );
+            ctx.beginPath();
+            ctx.fillRect(-.5, -.5, 1, 1);
+            ctx.closePath();					  
             break;
           
           case "TRIANGLE":
-            this._draw( localTransform, function(ctx) {
-              ctx.beginPath();
-              var scale = 0.57735; // Scales the side of the triagle down to unit length.
-              ctx.moveTo( 0, -scale );
-              for(var i=1; i<=3; i++ ){
-                ctx.lineTo( scale*Math.sin( i*2*Math.PI/3 ), -scale*Math.cos( i*2*Math.PI/3 ) );
-              }
-              ctx.fillStyle = utils.colorToRgba( localColor );
-              ctx.fill();
-              ctx.closePath();            
-            });
+            this.setTransform( localTransform );
+            ctx.beginPath();
+            var scale = 0.57735; // Scales the side of the triagle down to unit length.
+            ctx.moveTo( 0, -scale );
+            for(var i=1; i<=3; i++ ){
+              ctx.lineTo( scale*Math.sin( i*2*Math.PI/3 ), -scale*Math.cos( i*2*Math.PI/3 ) );
+            }
+            ctx.fill();
+            ctx.closePath();            
             break;
                       
           default:
@@ -185,8 +175,9 @@ module.exports = {
       // Rotation
       var r = utils.getKeyValue( ["r", "rotate"], null, adjs );
       if( r != null ){
-        var cosTheta = Math.cos( -2*Math.PI * r/360 );
-        var sinTheta = Math.sin( -2*Math.PI * r/360 );
+        var radius = -2*Math.PI * r/360;
+        var cosTheta = Math.cos(radius);
+        var sinTheta = Math.sin(radius);
         var rotate = utils.toAffineTransformation( cosTheta, -sinTheta, sinTheta, cosTheta, 0, 0 );
         transform = utils.compose( transform, rotate );
       }
