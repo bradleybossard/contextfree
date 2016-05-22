@@ -1,5 +1,12 @@
 var utils = require('./utils')
 
+function drawBackground(background, ctx) {
+  var backgroundColor = {h:0, s:0, b:1, a:1};
+  var c = utils.adjustColor( backgroundColor, background);
+  ctx.fillStyle = utils.colorToRgba( c );
+  ctx.fillRect( 0, 0, width, height);
+}
+
 module.exports = {
   renderer: function() {
     ctx = null;
@@ -27,7 +34,9 @@ module.exports = {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, width, height);
 
-      this.drawBackground();
+      if (compiled.background !== undefined) {
+        drawBackground(compiled.background, ctx);
+      }
       this.draw();
       this.tick();
     },
@@ -38,7 +47,7 @@ module.exports = {
         var start = new Date();
         var concurrent = Math.min( queue.length - 1, _maxThreads );
         
-        for( var i=0; i<=concurrent; i++ ){
+        for( var i = 0; i <= concurrent; i++ ) {
           queue.shift().start();
         }
         var end = new Date();
@@ -51,16 +60,6 @@ module.exports = {
       }
       _rendering = false;
     },
-    this.drawBackground = function() {
-      if( this.compiled.background ) {
-        var colorAdj = this.compiled.background;
-        var backgroundColor = {h:0, s:0, b:1, a:1};
-        var c = utils.adjustColor( backgroundColor, colorAdj );
-        ctx.fillStyle = utils.colorToRgba( c );
-        ctx.fillRect( 0, 0, width, height);
-      }
-    },
-    
     this.draw = function() {
       var ruleName = this.compiled.startshape;
       var foregroundColor = {h:0, s:0, b:0, a:1};
