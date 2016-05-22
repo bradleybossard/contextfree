@@ -159,6 +159,8 @@ module.exports = {
 	}
 	
 	this.compile = function( tokens ) {
+    this._compiled = {};
+    this._state = null;	
 		compiler._state = new compiler._generalState();
 		tokens.reverse();
 		while( tokens.length > 0 ){
