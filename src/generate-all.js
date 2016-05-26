@@ -19,6 +19,8 @@ if (true) {
   var keys = Object.keys(cfdgsExamples);
 }
 
+var dirname = 'output';
+
 var height = 600;
 var width = 600;
 var Image = Canvas.Image;
@@ -37,16 +39,20 @@ async.eachSeries(keys, function(key, callback) {
   var compiledTree = c.compile(tokens);
   compiled[key] = compiledTree; 
 
-  var filename = 'output/' + key + '.png';
+  var filename = dirname + '/' + key + '.png';
   console.log(filename + ' started');
 
   //var render = r.render(compiledTree, canvas);
   var render = r.render(compiledTree, canvas, 600);
 
+  if (!fs.existsSync(dirname)){
+    fs.mkdirSync(dirname);
+  }
+
   canvas.toBuffer(function(err, buf) {
     fs.writeFile(filename, buf, function() {
       console.log(filename + ' done');
-      gc();
+      //gc();
       callback();
     });
   });
