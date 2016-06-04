@@ -1,7 +1,7 @@
 var expect = require('chai').expect;
 var fs = require('fs');
 var tokenizer = require('./tokenizer');
-var cfdgsExamples = require('../cfdgs-pretty-reproducible.json');
+var cfdgsExamples = require('../grammars/cfdgs-pretty-reproducible.json');
 
 describe('tokenizer', function() {
   it('should tokenize circle grammar', function() {

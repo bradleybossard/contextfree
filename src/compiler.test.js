@@ -3,7 +3,6 @@ var tokenizer = require('./tokenizer');
 
 var compiler = require('./compiler');
 var fs = require('fs');
-var cfdgsExamples = require('../cfdgs-pretty.json');
 
 describe('compiler', function() {
   it('should tokenize circle grammar', function() {
