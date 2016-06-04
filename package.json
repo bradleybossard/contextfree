@@ -6,6 +6,7 @@
     "prebuild": "rm -rf dist && mkdir dist",
     "lint": "eslint src/*.js",
     "build": "babel src/index.js src/tokenizer.js src/compiler.js -o dist/index.js",
+    "browserify": "browserify src/index.js --s module > dist/index.js",
     "generate-testdata": "node src/generate-testdata.js",
     "test": "mocha src/*.test.js src/testdata/* -w",
     "test:single": "istanbul cover -x *.test.js _mocha -- -R spec src/*.test.js",
