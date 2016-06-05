@@ -7,6 +7,60 @@ function drawBackground(background, ctx) {
   ctx.fillRect( 0, 0, width, height);
 }
 
+function setTransform(trans, ctx ) {
+  // Globally center and scale the transform (often the pictures are too small)
+  ctx.setTransform( _globalScale, 0, 0, _globalScale, width/2, height/2 );
+  
+  // Perform the actual transformation.
+  ctx.transform(trans[0][0], trans[1][0], trans[0][1], trans[1][1], trans[0][2], trans[1][2]);
+}
+
+function adjustTransform(adjs, transform) {
+  // Translation
+  var x = utils.getKeyValue( "x", 0, adjs );
+  var y = -utils.getKeyValue( "y", 0, adjs );
+      
+  if( x != 0 || y != 0 ){
+    var translate = utils.toAffineTransformation(1, 0, 0, 1, x, y);
+    transform = utils.compose( transform, translate );
+  }
+
+  // Rotation
+  var r = utils.getKeyValue( ["r", "rotate"], null, adjs );
+  if( r != null ){
+    var radius = -2*Math.PI * r/360;
+    var cosTheta = Math.cos(radius);
+    var sinTheta = Math.sin(radius);
+    var rotate = utils.toAffineTransformation( cosTheta, -sinTheta, sinTheta, cosTheta, 0, 0 );
+    transform = utils.compose( transform, rotate );
+  }
+      
+  // Scaling
+  var s = utils.getKeyValue( ["s", "size"], 1, adjs );
+  if(typeof(s) == "number") {
+    s = [s,s];
+  }
+  
+  if(s != 1) {
+    var scale = utils.toAffineTransformation(s[0], 0, 0, s[1], 0, 0 );
+    transform = utils.compose( transform, scale );
+  }						
+      
+  // Flip around a line through the origin;
+  var f = utils.getKeyValue( ["f", "flip"], null, adjs );
+  if(f != null) {
+    // Flip 0 means to flip along the X axis. Flip 90 means to flip along the Y axis.
+    // That's why the flip vector (vX, vY) is Pi/2 radians further along than expected. 
+    vX = Math.cos( -2*Math.PI * f/360 );
+    vY = Math.sin( -2*Math.PI * f/360 );
+    norm = 1/(vX*vX + vY*vY);
+    var flip = utils.toAffineTransformation((vX*vX-vY*vY)/norm, 2*vX*vY/norm, 2*vX*vY/norm, (vY*vY-vX*vX)/norm, 0, 0);
+    transform = utils.compose( transform, flip );
+  }
+  
+  return transform;
+}		
+
 module.exports = {
   renderer: function() {
     ctx = null;
@@ -42,7 +96,7 @@ module.exports = {
     },
     
     this.tick = function() {
-      if( queue.length > 0 ) {
+      if(queue.length > 0) {
         _rendering = true;
         var start = new Date();
         var concurrent = Math.min( queue.length - 1, _maxThreads );
@@ -69,7 +123,7 @@ module.exports = {
     this.drawRule = function( ruleName, transform, color, priority ){
       // When things get too small, we can stop rendering.
       // Too small, in this case, means less than half a pixel.
-      if( Math.abs(transform[0][1]) * _globalScale < .5 && Math.abs(transform[1][1]) * _globalScale < .5 ){
+      if( Math.abs(transform[0][1]) * _globalScale < .5 && Math.abs(transform[1][1]) * _globalScale < .5 ) {
         return;
       }
       
@@ -96,7 +150,7 @@ module.exports = {
     },
 
 	this._draw = function( transform, drawFunc ) {	  
-    this.setTransform( transform );
+    setTransform(transform, ctx);
     drawFunc( ctx );
     return;
 	},
@@ -104,11 +158,10 @@ module.exports = {
     this.drawShape = function( shape, transform, color, priority ) {
       for( i=0; i<shape.draw.length; i++){
         var item = shape.draw[i];
-        var localTransform = this.adjustTransform( item, transform );
+        var localTransform = adjustTransform( item, transform );
         var localColor = utils.adjustColor( color, item );
         
         switch( item.shape ) {
-
           case "CIRCLE":					
             this._draw( localTransform, function(ctx) {
               ctx.beginPath();
@@ -142,7 +195,6 @@ module.exports = {
               ctx.closePath();            
             });
             break;
-                      
           default:
             var that = this;
             var threadedDraw = function(shape, transform, color) {
@@ -162,58 +214,6 @@ module.exports = {
             break;
         }	    
       }
-    },
-    this.setTransform = function( trans ){
-      // Globally center and scale the transform (often the pictures are too small)
-      ctx.setTransform( _globalScale, 0, 0, _globalScale, width/2, height/2 );
-      
-      // Perform the actual transformation.
-      ctx.transform( trans[0][0], trans[1][0], trans[0][1], trans[1][1], trans[0][2], trans[1][2] );
-    },
-    this.adjustTransform = function( adjs, transform ){
-      // Tranalsation
-      var x = utils.getKeyValue( "x", 0, adjs );
-      var y = -utils.getKeyValue( "y", 0, adjs );
-          
-      if( x != 0 || y != 0 ){
-        var translate = utils.toAffineTransformation(1, 0, 0, 1, x, y);
-        transform = utils.compose( transform, translate );
-      }
-
-      // Rotation
-      var r = utils.getKeyValue( ["r", "rotate"], null, adjs );
-      if( r != null ){
-        var radius = -2*Math.PI * r/360;
-        var cosTheta = Math.cos(radius);
-        var sinTheta = Math.sin(radius);
-        var rotate = utils.toAffineTransformation( cosTheta, -sinTheta, sinTheta, cosTheta, 0, 0 );
-        transform = utils.compose( transform, rotate );
-      }
-          
-      // Scaling
-      var s = utils.getKeyValue( ["s", "size"], 1, adjs );
-      if(typeof(s) == "number") {
-        s = [s,s];
-      }
-      
-      if(s != 1) {
-        var scale = utils.toAffineTransformation(s[0], 0, 0, s[1], 0, 0 );
-        transform = utils.compose( transform, scale );
-      }						
-          
-      // Flip around a line through the origin;
-      var f = utils.getKeyValue( ["f", "flip"], null, adjs );
-      if(f != null) {
-        // Flip 0 means to flip along the X axis. Flip 90 means to flip along the Y axis.
-        // That's why the flip vector (vX, vY) is Pi/2 radians further along than expected. 
-        vX = Math.cos( -2*Math.PI * f/360 );
-        vY = Math.sin( -2*Math.PI * f/360 );
-        norm = 1/(vX*vX + vY*vY);
-        var flip = utils.toAffineTransformation((vX*vX-vY*vY)/norm, 2*vX*vY/norm, 2*vX*vY/norm, (vY*vY-vX*vX)/norm, 0, 0);
-        transform = utils.compose( transform, flip );
-      }
-      
-      return transform;
-    }		
+    }
   }
 }
