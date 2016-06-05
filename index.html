@@ -4,10 +4,6 @@
   <meta charset="UTF-8">
   <title></title>
   <style>
-    textarea {
-      display: none;
-    }
-
     #choose {
       float:right;
       background-color: #fff;
@@ -24,8 +20,8 @@
     }
 
     #canvasContainer {
-      width: 1200px;
-      height: 1000px;
+      width: 600px;
+      height: 600px;
     }
   </style>
 </head>
@@ -37,14 +33,13 @@
       <div id="numTokens"></div>
     </div>
     <div id="canvasContainer"></div>
-    <!--<canvas width="600" height="600" id="theCanvas"></canvas>-->
 
     <div class="background">
         <pre id="code"></pre>
     </div>
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>		
-    <script src="dist/index.js"></script>
+    <script src="dist/contextfree.js"></script>
 
     <script>
       var $menu = $('#menu');
@@ -58,11 +53,10 @@
       $(container).append( canvas );
 
       function render(cfdg) {
-        var tokens = module.tokenize(cfdg);
+        var tokens = contextfree.tokenize(cfdg);
         $('#numTokens').html('numTokens = ' + tokens.length);
-        var compiled = module.compile(tokens);
-        //console.log(compiled);
-        module.render(compiled, canvas, canvas.width);
+        var compiled = contextfree.compile(tokens);
+        contextfree.render(compiled, canvas);
       }
 
       function loadSelect() {
