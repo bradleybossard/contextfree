@@ -4,7 +4,6 @@ function drawBackground(background, ctx) {
   var backgroundColor = {h:0, s:0, b:1, a:1};
   var c = utils.adjustColor( backgroundColor, background);
   ctx.fillStyle = utils.colorToRgba( c );
-  console.log('width/height', width, height);
   ctx.fillRect( 0, 0, width, height);
 }
 
@@ -101,7 +100,6 @@ function drawRule(compiled, ruleName, transform, color, priority) {
   }
   
   // Choose which rule to go with...
-  console.log(compiled);
   var choices = compiled[ruleName];
   
   var sum = 0;
@@ -160,6 +158,30 @@ function drawShape(compiled, shape, transform, color, priority) {
   }
 }
 
+function draw(compiled) {
+  var ruleName = compiled.startshape;
+  var foregroundColor = {h:0, s:0, b:0, a:1};
+  drawRule(compiled, ruleName, utils.IdentityTransformation(), foregroundColor);
+}
+
+function tick() {
+  if(queue.length > 0) {
+    var start = new Date();
+    var concurrent = Math.min( queue.length - 1, _maxThreads );
+    
+    for( var i = 0; i <= concurrent; i++ ) {
+      queue.shift().start();
+    }
+    var end = new Date();
+   
+    // TODO(bradleybossard) : This handles animating the canvas, but can cause issues if
+    // the user tries to render another image before the previous one completes, therefore
+    // I removed the animation for now.
+    //setTimeout( Renderer.tick, 2*(end-start) );
+    tick();
+  }
+}
+
 module.exports = {
   renderer: function() {
     ctx = null;
@@ -171,7 +193,7 @@ module.exports = {
     
     queue = [];
 
-    this.render = function( compiled, canvas, seed) {
+    this.render = function(compiled, canvas, seed) {
       this.compiled = compiled;
       // If a seed is proved, use it, other generate a random seed.
       Math.seed = (seed !== undefined) ? seed : Math.floor(Math.random() * 10000);
@@ -189,32 +211,8 @@ module.exports = {
       if (compiled.background !== undefined) {
         drawBackground(compiled.background, ctx);
       }
-      this.draw();
-      this.tick();
-    },
-    
-    this.tick = function() {
-      if(queue.length > 0) {
-        var start = new Date();
-        var concurrent = Math.min( queue.length - 1, _maxThreads );
-        
-        for( var i = 0; i <= concurrent; i++ ) {
-          queue.shift().start();
-        }
-        var end = new Date();
-       
-        // TODO(bradleybossard) : This handles animating the canvas, but can cause issues if
-        // the user tries to render another image before the previous one completes, therefore
-        // I removed the animation for now.
-        //setTimeout( Renderer.tick, 2*(end-start) );
-        this.tick();
-      }
-    },
-    this.draw = function() {
-      var ruleName = this.compiled.startshape;
-      var foregroundColor = {h:0, s:0, b:0, a:1};
-      //this.drawRule( this.compiled, ruleName, utils.IdentityTransformation(), foregroundColor );
-      drawRule( this.compiled, ruleName, utils.IdentityTransformation(), foregroundColor );
+      draw(this.compiled);
+      tick();
     }
   }
 }
