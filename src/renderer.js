@@ -61,6 +61,37 @@ function adjustTransform(adjs, transform) {
   return transform;
 }		
 
+function drawCircle(ctx, transform, color) {
+  setTransform(transform, ctx);
+  ctx.beginPath();
+  ctx.fillStyle = utils.colorToRgba(color);
+  ctx.arc( 0, 0, .5, 0, 2*Math.PI, true);
+  ctx.fill();
+  ctx.closePath();					  
+}
+
+function drawSquare(ctx, transform, color) {
+  setTransform(transform, ctx);
+  ctx.beginPath();
+  ctx.fillStyle = utils.colorToRgba(color);
+  ctx.fillRect(-.5, -.5, 1, 1);
+  ctx.closePath();					  
+}
+
+function drawTriangle(ctx, transform, color) {
+  setTransform(transform, ctx);
+  ctx.beginPath();
+  var scale = 0.57735; // Scales the side of the triagle down to unit length.
+  ctx.moveTo( 0, -scale );
+  for( var i=1; i<=3; i++ ){
+    var angle = i*2*Math.PI/3;
+    ctx.lineTo(scale*Math.sin(angle), -scale*Math.cos(angle));
+  }
+  ctx.fillStyle = utils.colorToRgba(color);
+  ctx.fill();
+  ctx.closePath();            
+}
+
 module.exports = {
   renderer: function() {
     ctx = null;
@@ -148,12 +179,6 @@ module.exports = {
       
       this.drawShape( shape, transform, color, priority );
     },
-
-	this._draw = function( transform, drawFunc ) {	  
-    setTransform(transform, ctx);
-    drawFunc( ctx );
-    return;
-	},
 	
     this.drawShape = function( shape, transform, color, priority ) {
       for( i=0; i<shape.draw.length; i++){
@@ -163,37 +188,15 @@ module.exports = {
         
         switch( item.shape ) {
           case "CIRCLE":					
-            this._draw( localTransform, function(ctx) {
-              ctx.beginPath();
-              ctx.fillStyle = utils.colorToRgba( localColor );
-              ctx.arc( 0, 0, .5, 0, 2*Math.PI, true )
-              ctx.fill();
-              ctx.closePath();					  
-            });
+            drawCircle(ctx, localTransform, localColor);
             break;
             
           case "SQUARE":
-            this._draw( localTransform, function(ctx) {
-              ctx.beginPath();
-              ctx.fillStyle = utils.colorToRgba( localColor );
-              ctx.fillRect(-.5, -.5, 1, 1);
-              ctx.closePath();					  
-            });
+            drawSquare(ctx, localTransform, localColor);
             break;
           
           case "TRIANGLE":
-            this._draw( localTransform, function(ctx) {
-              ctx.beginPath();
-              var scale = 0.57735; // Scales the side of the triagle down to unit length.
-              ctx.moveTo( 0, -scale );
-              for( var i=1; i<=3; i++ ){
-                var angle = i*2*Math.PI/3;
-                ctx.lineTo(scale*Math.sin(angle), -scale*Math.cos(angle));
-              }
-              ctx.fillStyle = utils.colorToRgba( localColor );
-              ctx.fill();
-              ctx.closePath();            
-            });
+            drawTriangle(ctx, localTransform, localColor);
             break;
           default:
             var that = this;
