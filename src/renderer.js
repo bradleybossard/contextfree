@@ -1,13 +1,27 @@
 var utils = require('./utils')
 
-function drawBackground(background, ctx) {
+var compiled = null;
+var ctx = null;
+var queue = [];
+var width = null;
+var height = null;
+
+function drawBackground(background) {
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+
+  if (compiled.background == undefined) {
+    //drawBackground(compiled.background);
+    return;
+  }
   var backgroundColor = {h:0, s:0, b:1, a:1};
   var c = utils.adjustColor( backgroundColor, background);
   ctx.fillStyle = utils.colorToRgba( c );
   ctx.fillRect( 0, 0, width, height);
 }
 
-function setTransform(trans, ctx ) {
+function setTransform(trans) {
   // Globally center and scale the transform (often the pictures are too small)
   ctx.setTransform( _globalScale, 0, 0, _globalScale, width/2, height/2 );
   
@@ -61,8 +75,8 @@ function adjustTransform(adjs, transform) {
   return transform;
 }		
 
-function drawCircle(ctx, transform, color) {
-  setTransform(transform, ctx);
+function drawCircle(transform, color) {
+  setTransform(transform);
   ctx.beginPath();
   ctx.fillStyle = utils.colorToRgba(color);
   ctx.arc( 0, 0, .5, 0, 2*Math.PI, true);
@@ -70,16 +84,16 @@ function drawCircle(ctx, transform, color) {
   ctx.closePath();					  
 }
 
-function drawSquare(ctx, transform, color) {
-  setTransform(transform, ctx);
+function drawSquare(transform, color) {
+  setTransform(transform);
   ctx.beginPath();
   ctx.fillStyle = utils.colorToRgba(color);
   ctx.fillRect(-.5, -.5, 1, 1);
   ctx.closePath();					  
 }
 
-function drawTriangle(ctx, transform, color) {
-  setTransform(transform, ctx);
+function drawTriangle(transform, color) {
+  setTransform(transform);
   ctx.beginPath();
   var scale = 0.57735; // Scales the side of the triagle down to unit length.
   ctx.moveTo( 0, -scale );
@@ -92,7 +106,7 @@ function drawTriangle(ctx, transform, color) {
   ctx.closePath();            
 }
 
-function drawRule(compiled, ruleName, transform, color, priority) {
+function drawRule(ruleName, transform, color, priority) {
   // When things get too small, we can stop rendering.
   // Too small, in this case, means less than half a pixel.
   if( Math.abs(transform[0][1]) * _globalScale < .5 && Math.abs(transform[1][1]) * _globalScale < .5 ) {
@@ -118,10 +132,10 @@ function drawRule(compiled, ruleName, transform, color, priority) {
     }
   }
   
-  drawShape(compiled, shape, transform, color, priority);
+  drawShape(shape, transform, color, priority);
 }
 
-function drawShape(compiled, shape, transform, color, priority) {
+function drawShape(shape, transform, color, priority) {
   for( i=0; i<shape.draw.length; i++){
     var item = shape.draw[i];
     var localTransform = adjustTransform( item, transform );
@@ -129,21 +143,21 @@ function drawShape(compiled, shape, transform, color, priority) {
     
     switch( item.shape ) {
       case "CIRCLE":					
-        drawCircle(ctx, localTransform, localColor);
+        drawCircle(localTransform, localColor);
         break;
         
       case "SQUARE":
-        drawSquare(ctx, localTransform, localColor);
+        drawSquare(localTransform, localColor);
         break;
       
       case "TRIANGLE":
-        drawTriangle(ctx, localTransform, localColor);
+        drawTriangle(localTransform, localColor);
         break;
       default:
         var that = this;
         var threadedDraw = function(shape, transform, color) {
           this.start = function(that) {
-            drawRule(compiled, shape, transform, color );
+            drawRule(shape, transform, color );
           }
         }
         
@@ -158,16 +172,16 @@ function drawShape(compiled, shape, transform, color, priority) {
   }
 }
 
-function draw(compiled) {
+function draw() {
   var ruleName = compiled.startshape;
   var foregroundColor = {h:0, s:0, b:0, a:1};
-  drawRule(compiled, ruleName, utils.IdentityTransformation(), foregroundColor);
+  drawRule(ruleName, utils.IdentityTransformation(), foregroundColor);
 }
 
-function tick() {
+function tick(maxThreads) {
   if(queue.length > 0) {
     var start = new Date();
-    var concurrent = Math.min( queue.length - 1, _maxThreads );
+    var concurrent = Math.min( queue.length - 1, maxThreads );
     
     for( var i = 0; i <= concurrent; i++ ) {
       queue.shift().start();
@@ -178,41 +192,32 @@ function tick() {
     // the user tries to render another image before the previous one completes, therefore
     // I removed the animation for now.
     //setTimeout( Renderer.tick, 2*(end-start) );
-    tick();
+    tick(maxThreads);
   }
 }
 
-module.exports = {
-  renderer: function() {
-    ctx = null;
-    width = null;
-    height = null;
-    
-    compiled =  null;
-    _maxThreads = 30;
-    
-    queue = [];
+function render(passedCompiled, canvas, seed) {
+  // If a seed is proved, use it, other generate a random seed.
+  Math.seed = (seed !== undefined) ? seed : Math.floor(Math.random() * 10000);
+  ctx = canvas.getContext("2d");
+  compiled = passedCompiled;
+  
+  width = canvas.width;
+  height = canvas.height;
+ 
+  // TODO(bradleybossard): Understand what this var does.
+  _globalScale = 300;
 
-    this.render = function(compiled, canvas, seed) {
-      this.compiled = compiled;
-      // If a seed is proved, use it, other generate a random seed.
-      Math.seed = (seed !== undefined) ? seed : Math.floor(Math.random() * 10000);
-      ctx = canvas.getContext("2d");
-      
-      width = canvas.width;
-      height = canvas.height;
-     
-      // TODO(bradleybossard): Understand what this var does.
-      _globalScale = 300;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, width, height);
 
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, width, height);
-
-      if (compiled.background !== undefined) {
-        drawBackground(compiled.background, ctx);
-      }
-      draw(this.compiled);
-      tick();
-    }
+  if (compiled.background !== undefined) {
+    drawBackground(compiled.background);
   }
+  draw(compiled);
+  tick(30); // maxThreads, make this configurable
+}
+
+module.exports = {
+  render: render
 }

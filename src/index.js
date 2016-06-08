@@ -12,9 +12,9 @@ function compile(tokens) {
 }
 
 function render(compiled, canvas, canvasSize) {
-  var r = new renderer.renderer();
+  //var r = new renderer.renderer();
   // TODO(bradleybossard): Do I need canvas size?
-  r.render(compiled, canvas, canvasSize);
+  renderer.render(compiled, canvas, canvasSize);
 }
 
 module.exports = {

@@ -12,11 +12,10 @@ describe('renderer', function() {
     var ctx = canvas.getContext('2d');
 
     var compiled = JSON.parse(fs.readFileSync('./src/testdata/compiled.json', 'utf8'));
-    var r = new renderer.renderer()
 
     for (var i in compiled) {
       var c = compiled[i];
-      var actual = r.render(c, canvas, 0.24);
+      var actual = renderer.render(c, canvas, 0.24);
       fs.writeFile('output/' + i + '.png', canvas.toBuffer());
     }
   });
