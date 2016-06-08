@@ -4,6 +4,7 @@ function drawBackground(background, ctx) {
   var backgroundColor = {h:0, s:0, b:1, a:1};
   var c = utils.adjustColor( backgroundColor, background);
   ctx.fillStyle = utils.colorToRgba( c );
+  console.log('width/height', width, height);
   ctx.fillRect( 0, 0, width, height);
 }
 
@@ -92,6 +93,73 @@ function drawTriangle(ctx, transform, color) {
   ctx.closePath();            
 }
 
+function drawRule(compiled, ruleName, transform, color, priority) {
+  // When things get too small, we can stop rendering.
+  // Too small, in this case, means less than half a pixel.
+  if( Math.abs(transform[0][1]) * _globalScale < .5 && Math.abs(transform[1][1]) * _globalScale < .5 ) {
+    return;
+  }
+  
+  // Choose which rule to go with...
+  console.log(compiled);
+  var choices = compiled[ruleName];
+  
+  var sum = 0;
+  for(var i=0; i<choices.length; i++) {
+    sum += choices[i].weight;
+  }
+ 
+  var r = Math.seededRandom() * sum;
+  sum = 0;
+  
+  for( var i=0; i <= choices.length-1; i++) {
+    sum += choices[i].weight;
+    if( r <= sum ){
+      var shape = choices[i];
+      break;
+    }
+  }
+  
+  drawShape(compiled, shape, transform, color, priority);
+}
+
+function drawShape(compiled, shape, transform, color, priority) {
+  for( i=0; i<shape.draw.length; i++){
+    var item = shape.draw[i];
+    var localTransform = adjustTransform( item, transform );
+    var localColor = utils.adjustColor( color, item );
+    
+    switch( item.shape ) {
+      case "CIRCLE":					
+        drawCircle(ctx, localTransform, localColor);
+        break;
+        
+      case "SQUARE":
+        drawSquare(ctx, localTransform, localColor);
+        break;
+      
+      case "TRIANGLE":
+        drawTriangle(ctx, localTransform, localColor);
+        break;
+      default:
+        var that = this;
+        var threadedDraw = function(shape, transform, color) {
+          this.start = function(that) {
+            drawRule(compiled, shape, transform, color );
+          }
+        }
+        
+        var tD = new threadedDraw( item.shape, localTransform, localColor );
+        if( priority == 1 ) {
+          queue.unshift(tD);
+        } else {
+          queue.push(tD);
+        }
+        break;
+    }	    
+  }
+}
+
 module.exports = {
   renderer: function() {
     ctx = null;
@@ -114,7 +182,6 @@ module.exports = {
      
       // TODO(bradleybossard): Understand what this var does.
       _globalScale = 300;
-      _rendering = false;
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, width, height);
@@ -128,7 +195,6 @@ module.exports = {
     
     this.tick = function() {
       if(queue.length > 0) {
-        _rendering = true;
         var start = new Date();
         var concurrent = Math.min( queue.length - 1, _maxThreads );
         
@@ -143,80 +209,12 @@ module.exports = {
         //setTimeout( Renderer.tick, 2*(end-start) );
         this.tick();
       }
-      _rendering = false;
     },
     this.draw = function() {
       var ruleName = this.compiled.startshape;
       var foregroundColor = {h:0, s:0, b:0, a:1};
-      this.drawRule( ruleName, utils.IdentityTransformation(), foregroundColor );
-    },
-    
-    this.drawRule = function( ruleName, transform, color, priority ){
-      // When things get too small, we can stop rendering.
-      // Too small, in this case, means less than half a pixel.
-      if( Math.abs(transform[0][1]) * _globalScale < .5 && Math.abs(transform[1][1]) * _globalScale < .5 ) {
-        return;
-      }
-      
-      // Choose which rule to go with...
-      var choices = this.compiled[ruleName];
-      
-      var sum = 0;
-      for( var i=0; i<choices.length; i++) {
-        sum += choices[i].weight;
-      }
-     
-      var r = Math.seededRandom() * sum;
-      sum = 0;
-      
-      for( var i=0; i <= choices.length-1; i++) {
-        sum += choices[i].weight;
-        if( r <= sum ){
-          var shape = choices[i];
-          break;
-        }
-      }
-      
-      this.drawShape( shape, transform, color, priority );
-    },
-	
-    this.drawShape = function( shape, transform, color, priority ) {
-      for( i=0; i<shape.draw.length; i++){
-        var item = shape.draw[i];
-        var localTransform = adjustTransform( item, transform );
-        var localColor = utils.adjustColor( color, item );
-        
-        switch( item.shape ) {
-          case "CIRCLE":					
-            drawCircle(ctx, localTransform, localColor);
-            break;
-            
-          case "SQUARE":
-            drawSquare(ctx, localTransform, localColor);
-            break;
-          
-          case "TRIANGLE":
-            drawTriangle(ctx, localTransform, localColor);
-            break;
-          default:
-            var that = this;
-            var threadedDraw = function(shape, transform, color) {
-              this.start = function() {
-                that.drawRule( shape, transform, color );
-              }
-            }
-            
-            var tD = new threadedDraw( item.shape, localTransform, localColor );
-            if( priority == 1 ) {
-              //Renderer.queue.unshift(tD);
-              queue.unshift(tD);
-            } else {
-              //Renderer.queue.push( tD );
-              queue.push(tD);
-            }
-            break;
-        }	    
-      }
+      //this.drawRule( this.compiled, ruleName, utils.IdentityTransformation(), foregroundColor );
+      drawRule( this.compiled, ruleName, utils.IdentityTransformation(), foregroundColor );
     }
   }
 }
