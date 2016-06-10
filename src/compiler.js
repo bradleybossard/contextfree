@@ -93,7 +93,7 @@ module.exports = {
 		this.onDone = function( obj ){ }
 	}
 
-	this._ruleState = function(){
+	this._ruleState = function() {
 		// The first token is the name of the rule. After that comes
 		// a "{" or the rule's weight.	
 		this.eat = function( token ){
@@ -108,17 +108,17 @@ module.exports = {
 	}
 
 	this._ruleWeightState = function( ruleName ){
-		this._weight = 1;
+		var weight = 1;
 		
 		// You can either get the default weight (1) by not putting a weight after
 		// a rule name, or you can define it after the name. For example:
 		// rule tree { /* stuff */ }
 		// rule tree .5 { /* stuff */ }		
 		this.eat = function( token ) {
-			if( token != "{" ){
-				this._weight = parseFloat( token );
+			if( token != "{" ) {
+				weight = parseFloat( token );
 			} else {
-				compiler._compiled[ruleName].push({ weight: this._weight, draw: [] })
+				compiler._compiled[ruleName].push({ weight: weight, draw: [] })
 				compiler._state = new compiler._ruleDrawState( ruleName );
 			}
 		}
@@ -136,7 +136,7 @@ module.exports = {
 			
 			var shapeName = token;
 			
-			compiler._state = new (function(){
+			compiler._state = new (function() {
 				this._state = new compiler._abstractArgumentState();
 				
 				this._state.onDone = function( args ) {					
