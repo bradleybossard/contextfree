@@ -5,6 +5,8 @@ var ctx = null;
 var queue = [];
 var width = null;
 var height = null;
+var maxStackDepth = 1000;
+var isDebug = false;
 
 function drawBackground(background) {
 
@@ -106,11 +108,17 @@ function drawTriangle(transform, color) {
   ctx.closePath();            
 }
 
-function drawRule(ruleName, transform, color, priority) {
+function drawRule(ruleName, stackDepth, transform, color, priority) {
   // When things get too small, we can stop rendering.
   // Too small, in this case, means less than half a pixel.
-  if( Math.abs(transform[0][1]) * _globalScale < .5 && Math.abs(transform[1][1]) * _globalScale < .5 ) {
+  if( (Math.abs(transform[0][1]) * _globalScale < .5 &&
+      Math.abs(transform[1][1]) * _globalScale < .5 ) ||
+      stackDepth > maxStackDepth) {
     return;
+  }
+
+  if (isDebug == true && stackDepth % 100 == 0) {
+    console.log(stackDepth);
   }
   
   // Choose which rule to go with...
@@ -132,10 +140,10 @@ function drawRule(ruleName, transform, color, priority) {
     }
   }
   
-  drawShape(shape, transform, color, priority);
+  drawShape(shape, stackDepth, transform, color, priority);
 }
 
-function drawShape(shape, transform, color, priority) {
+function drawShape(shape, stackDepth, transform, color, priority) {
   for( i=0; i<shape.draw.length; i++){
     var item = shape.draw[i];
     var localTransform = adjustTransform( item, transform );
@@ -156,8 +164,9 @@ function drawShape(shape, transform, color, priority) {
       default:
         var that = this;
         var threadedDraw = function(shape, transform, color) {
+          var incStackDepth = stackDepth + 1;
           this.start = function(that) {
-            drawRule(shape, transform, color );
+            drawRule(shape, incStackDepth, transform, color );
           }
         }
         
@@ -175,7 +184,7 @@ function drawShape(shape, transform, color, priority) {
 function draw() {
   var ruleName = compiled.startshape;
   var foregroundColor = {h:0, s:0, b:0, a:1};
-  drawRule(ruleName, utils.IdentityTransformation(), foregroundColor);
+  drawRule(ruleName, 0, utils.IdentityTransformation(), foregroundColor);
 }
 
 function tick(maxThreads) {
@@ -206,7 +215,7 @@ function render(passedCompiled, canvas, seed) {
   height = canvas.height;
  
   // TODO(bradleybossard): Understand what this var does.
-  _globalScale = 300;
+  _globalScale = width / 4;
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, width, height);
