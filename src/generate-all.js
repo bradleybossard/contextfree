@@ -6,23 +6,16 @@ var Canvas = require('canvas');
 var async = require('async');
 //var cfdgsExamples = require('../cfdgs-pretty.json');
 var cfdgsExamples = require('../grammars/cfdgs-pretty-non-broken.json');
-var keys = Object.keys(cfdgsExamples);
 
-// This code is used for removing cfdgs to test certain grammars.
-if (false) {
-  for (var i = 0; i < keys.length; i++) {
-    //if (i == 5 || i == 5) continue;
-    if (i < 10) continue;
-    var key = keys[i];
-    delete cfdgsExamples[key];
-  }
-  var keys = Object.keys(cfdgsExamples);
-}
-
-var dirname = 'output';
+var dirname = "./src/testdata/images";
+var tokenizedFilepath = "./src/testdata/tokenized.json";
+var compiledFilepath = "./src/testdata/compiled.json";
 
 var height = 600;
 var width = 600;
+var randomNumber = 300;
+var maxObjects = 100;
+
 var Image = Canvas.Image;
 
 var tokenized = {};
@@ -41,7 +34,7 @@ async.eachSeries(keys, function(key, callback) {
   var filename = dirname + '/' + key + '.png';
   console.log(filename + ' started');
 
-  var render = renderer.render(compiledTree, canvas, 300, 30000);
+  var render = renderer.render(compiledTree, canvas, randomNumber, maxObjects);
 
   if (!fs.existsSync(dirname)){
     fs.mkdirSync(dirname);
@@ -58,9 +51,6 @@ async.eachSeries(keys, function(key, callback) {
 var tokenizedString = JSON.stringify(tokenized);
 var compiledString = JSON.stringify(compiled);
 
-var tokenizedFilepath = "./src/testdata/tokenized.json";
-var compiledFilepath = "./src/testdata/compiled.json";
-
 fs.writeFile(tokenizedFilepath, tokenizedString, function(err) {
   if(err) {
     return console.log(err);
@@ -74,5 +64,3 @@ fs.writeFile(compiledFilepath, compiledString, function(err) {
   }
   console.log("The file " + compiledFilepath + " was saved!");
 });
-
-
