@@ -41,7 +41,7 @@ async.eachSeries(keys, function(key, callback) {
   var filename = dirname + '/' + key + '.png';
   console.log(filename + ' started');
 
-  var render = renderer.render(compiledTree, canvas, 300);
+  var render = renderer.render(compiledTree, canvas, 300, 30000);
 
   if (!fs.existsSync(dirname)){
     fs.mkdirSync(dirname);
@@ -50,7 +50,6 @@ async.eachSeries(keys, function(key, callback) {
   canvas.toBuffer(function(err, buf) {
     fs.writeFile(filename, buf, function() {
       console.log(filename + ' done');
-      //gc();
       callback();
     });
   });
