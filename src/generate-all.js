@@ -5,14 +5,14 @@ var fs = require('fs');
 var Canvas = require('canvas');
 var async = require('async');
 //var cfdgsExamples = require('../cfdgs-pretty.json');
-var cfdgsExamples = require('../cfdgs-pretty-non-broken.json');
+var cfdgsExamples = require('../grammars/cfdgs-pretty-non-broken.json');
 var keys = Object.keys(cfdgsExamples);
 
 // This code is used for removing cfdgs to test certain grammars.
-if (true) {
+if (false) {
   for (var i = 0; i < keys.length; i++) {
     //if (i == 5 || i == 5) continue;
-    if (i < 6) continue;
+    if (i < 10) continue;
     var key = keys[i];
     delete cfdgsExamples[key];
   }
@@ -28,7 +28,6 @@ var Image = Canvas.Image;
 var tokenized = {};
 var compiled = {};
 var c = new compiler.compiler();
-var r = new renderer.renderer();
 
 async.eachSeries(keys, function(key, callback) {
   var canvas = new Canvas(width, height);
@@ -42,8 +41,7 @@ async.eachSeries(keys, function(key, callback) {
   var filename = dirname + '/' + key + '.png';
   console.log(filename + ' started');
 
-  //var render = r.render(compiledTree, canvas);
-  var render = r.render(compiledTree, canvas, 600);
+  var render = renderer.render(compiledTree, canvas, 300);
 
   if (!fs.existsSync(dirname)){
     fs.mkdirSync(dirname);
