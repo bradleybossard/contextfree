@@ -5,8 +5,11 @@ var ctx = null;
 var queue = [];
 var width = null;
 var height = null;
-var maxStackDepth = 1000;
+var maxStackDepth = 100;
 var isDebug = false;
+var renderStartTime = 0;
+var renderTimeLimit = 1000;
+var maxThreads = 30;
 
 function drawBackground(background) {
 
@@ -117,6 +120,12 @@ function drawRule(ruleName, stackDepth, transform, color, priority) {
     return;
   }
 
+  var end = new Date();
+  var runTime = end - renderStartTime;
+  if (runTime > renderTimeLimit) {
+    return;
+  }
+
   if (isDebug == true && stackDepth % 100 == 0) {
     console.log(stackDepth);
   }
@@ -187,7 +196,7 @@ function draw() {
   drawRule(ruleName, 0, utils.IdentityTransformation(), foregroundColor);
 }
 
-function tick(maxThreads) {
+function tick(stackDepth) {
   if(queue.length > 0) {
     var start = new Date();
     var concurrent = Math.min( queue.length - 1, maxThreads );
@@ -196,12 +205,20 @@ function tick(maxThreads) {
       queue.shift().start();
     }
     var end = new Date();
-   
+
     // TODO(bradleybossard) : This handles animating the canvas, but can cause issues if
     // the user tries to render another image before the previous one completes, therefore
     // I removed the animation for now.
     //setTimeout( Renderer.tick, 2*(end-start) );
-    tick(maxThreads);
+    if (stackDepth > maxStackDepth) {
+      return;
+    }
+
+    var runTime = end - renderStartTime;
+
+
+    //setTimeout(tick, 0, maxThreads, stackDepth);
+    tick(stackDepth);
   }
 }
 
@@ -223,8 +240,11 @@ function render(passedCompiled, canvas, seed) {
   if (compiled.background !== undefined) {
     drawBackground(compiled.background);
   }
+
+  renderStartTime = new Date();
+
   draw(compiled);
-  tick(30); // maxThreads, make this configurable
+  tick(); // maxThreads, make this configurable
 }
 
 module.exports = {
