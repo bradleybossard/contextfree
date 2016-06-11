@@ -3,21 +3,19 @@ var utils = require('./utils')
 var compiled = null;
 var ctx = null;
 var queue = [];
-var width = null;
-var height = null;
-var maxStackDepth = 100;
+var width = 0;
+var height = 0;
+var maxStackDepth = 10000;
 var isDebug = false;
 var renderStartTime = 0;
-var renderTimeLimit = 1000;
 var maxThreads = 30;
+var maxObjects = 50000;
 
 function drawBackground(background) {
-
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, width, height);
 
   if (compiled.background == undefined) {
-    //drawBackground(compiled.background);
     return;
   }
   var backgroundColor = {h:0, s:0, b:1, a:1};
@@ -87,6 +85,7 @@ function drawCircle(transform, color) {
   ctx.arc( 0, 0, .5, 0, 2*Math.PI, true);
   ctx.fill();
   ctx.closePath();					  
+  numObjects++;
 }
 
 function drawSquare(transform, color) {
@@ -95,6 +94,7 @@ function drawSquare(transform, color) {
   ctx.fillStyle = utils.colorToRgba(color);
   ctx.fillRect(-.5, -.5, 1, 1);
   ctx.closePath();					  
+  numObjects++;
 }
 
 function drawTriangle(transform, color) {
@@ -109,6 +109,7 @@ function drawTriangle(transform, color) {
   ctx.fillStyle = utils.colorToRgba(color);
   ctx.fill();
   ctx.closePath();            
+  numObjects++;
 }
 
 function drawRule(ruleName, stackDepth, transform, color, priority) {
@@ -120,16 +121,10 @@ function drawRule(ruleName, stackDepth, transform, color, priority) {
     return;
   }
 
-  var end = new Date();
-  var runTime = end - renderStartTime;
-  if (runTime > renderTimeLimit) {
+  if (numObjects > maxObjects) {
     return;
   }
 
-  if (isDebug == true && stackDepth % 100 == 0) {
-    console.log(stackDepth);
-  }
-  
   // Choose which rule to go with...
   var choices = compiled[ruleName];
   
@@ -222,9 +217,11 @@ function tick(stackDepth) {
   }
 }
 
-function render(passedCompiled, canvas, seed) {
+function render(passedCompiled, canvas, seed, passedMaxObjects) {
   // If a seed is proved, use it, other generate a random seed.
   Math.seed = (seed !== undefined) ? seed : Math.floor(Math.random() * 10000);
+  maxObjects = (passedMaxObjects !== undefined) ? passedMaxObjects : maxObjects; 
+  numObjects = 0;
   ctx = canvas.getContext("2d");
   compiled = passedCompiled;
   
@@ -245,6 +242,12 @@ function render(passedCompiled, canvas, seed) {
 
   draw(compiled);
   tick(); // maxThreads, make this configurable
+
+  var end = new Date();
+  var runTime = end - renderStartTime;
+  if (isDebug) {
+    console.log('Render time: ' + runTime + ' ms');
+  }
 }
 
 module.exports = {
