@@ -7,7 +7,7 @@ var async = require('async');
 //var cfdgsExamples = require('../cfdgs-pretty.json');
 var cfdgsExamples = require('../grammars/cfdgs-pretty-non-broken.json');
 
-var dirname = "./src/testdata/images";
+var dirname = "./src/testdata/expected";
 var tokenizedFilepath = "./src/testdata/tokenized.json";
 var compiledFilepath = "./src/testdata/compiled.json";
 
@@ -16,6 +16,7 @@ var width = 600;
 var randomNumber = 300;
 var maxObjects = 100;
 
+var keys = Object.keys(cfdgsExamples);
 var Image = Canvas.Image;
 
 var tokenized = {};
