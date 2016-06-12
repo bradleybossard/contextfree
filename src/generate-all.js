@@ -17,11 +17,14 @@ var randomNumber = 300;
 var maxObjects = 1000;
 
 var keys = Object.keys(cfdgsExamples);
-var Image = Canvas.Image;
 
 var tokenized = {};
 var compiled = {};
 var c = new compiler.compiler();
+
+if (!fs.existsSync(dirname)){
+  fs.mkdirSync(dirname);
+}
 
 async.eachSeries(keys, function writeImage(key, callback) {
   var canvas = new Canvas(width, height);
@@ -36,10 +39,6 @@ async.eachSeries(keys, function writeImage(key, callback) {
   console.log(filename + ' started');
 
   var render = renderer.render(compiledTree, canvas, randomNumber, maxObjects);
-
-  if (!fs.existsSync(dirname)){
-    fs.mkdirSync(dirname);
-  }
 
   canvas.toBuffer(function(err, buf) {
     fs.writeFile(filename, buf, function() {
