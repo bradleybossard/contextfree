@@ -34,6 +34,7 @@
   "devDependencies": {
     "babel": "^6.3.26",
     "babel-cli": "^6.3.17",
+    "blink-diff": "^1.0.12",
     "chai": "3.4.1",
     "codecov.io": "^0.1.6",
     "commitizen": "^2.4.6",
@@ -44,6 +45,7 @@
     "ghooks": "^1.0.1",
     "istanbul": "^0.4.1",
     "mocha": "2.3.4",
+    "rimraf": "^2.5.2",
     "semantic-release": "^4.3.5"
   },
   "czConfig": {
