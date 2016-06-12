@@ -14,7 +14,7 @@ var compiledFilepath = "./src/testdata/compiled.json";
 var height = 600;
 var width = 600;
 var randomNumber = 300;
-var maxObjects = 100;
+var maxObjects = 1000;
 
 var keys = Object.keys(cfdgsExamples);
 var Image = Canvas.Image;
@@ -23,7 +23,7 @@ var tokenized = {};
 var compiled = {};
 var c = new compiler.compiler();
 
-async.eachSeries(keys, function(key, callback) {
+async.eachSeries(keys, function writeImage(key, callback) {
   var canvas = new Canvas(width, height);
   var grammar = cfdgsExamples[key];
   var tokens = tokenizer.tokenize(grammar);
@@ -47,21 +47,22 @@ async.eachSeries(keys, function(key, callback) {
       callback();
     });
   });
-});
+}, 
+function writeCompiled() {
+  var tokenizedString = JSON.stringify(tokenized);
+  var compiledString = JSON.stringify(compiled);
 
-var tokenizedString = JSON.stringify(tokenized);
-var compiledString = JSON.stringify(compiled);
+  fs.writeFile(tokenizedFilepath, tokenizedString, function(err) {
+    if(err) {
+      return console.log(err);
+    }
+    console.log("The file " + tokenizedFilepath + " was saved!");
+  });
 
-fs.writeFile(tokenizedFilepath, tokenizedString, function(err) {
-  if(err) {
-    return console.log(err);
-  }
-  console.log("The file " + tokenizedFilepath + " was saved!");
-});
-
-fs.writeFile(compiledFilepath, compiledString, function(err) {
-  if(err) {
-    return console.log(err);
-  }
-  console.log("The file " + compiledFilepath + " was saved!");
+  fs.writeFile(compiledFilepath, compiledString, function(err) {
+    if(err) {
+      return console.log(err);
+    }
+    console.log("The file " + compiledFilepath + " was saved!");
+  });
 });
