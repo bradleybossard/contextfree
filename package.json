@@ -6,7 +6,7 @@
     "prebuild": "rm -rf dist && mkdir dist",
     "lint": "eslint src/*.js",
     "build": "babel src/index.js src/tokenizer.js src/compiler.js -o dist/index.js",
-    "watchify": "watchify src/index.js --s contextfree -o dist/contextfree.js",
+    "watchify": "watchify src/index.js --s contextfree -o dist/contextfree.js -t babelify",
     "generate-all": "rm -rf outputp; node src/generate-all.js",
     "test": "mocha src/*.test.js src/testdata/* -w",
     "test:single": "istanbul cover -x *.test.js _mocha -- -R spec src/*.test.js",
@@ -33,6 +33,8 @@
   "devDependencies": {
     "babel": "^6.3.26",
     "babel-cli": "^6.3.17",
+    "babel-preset-es2015": "^6.9.0",
+    "babelify": "^7.3.0",
     "blink-diff": "^1.0.12",
     "chai": "3.4.1",
     "codecov.io": "^0.1.6",
