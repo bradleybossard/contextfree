@@ -14,6 +14,10 @@ var height = 600;
 var width = 600;
 var randomNumber = 300;
 var maxObjects = 1000;
+// TODO(bradleybossard): This time out much higher than I would like.
+// Running test with istanbul seems to make some run up to 3x longer than
+// with just plain mocha.
+var testTimeout = 5000;
 var expectedDirname = "./src/testdata/expected";
 var actualDirname = "./src/testdata/actual";
 var outputDirname = "./src/testdata/output";
@@ -39,15 +43,14 @@ describe('renderer', function() {
 				fs.mkdirSync(outputDirname);
 				callback();
 			}
-
 		// Signal to mocha we are done.
 		}, function() {
 			done();
 		}]);
   });
 
+  // Delete resulting test and pdiff images.
 	after(function(done) {
-		console.log('cleanup');
 		async.series([function(callback) {
 			if (fs.existsSync(actualDirname)){
 				rimraf(actualDirname, function(err) {
@@ -68,8 +71,10 @@ describe('renderer', function() {
 		}]);
 	});
 
-  // TODO(bradleybossard): it.each allows you to name tests individually.
-  it.each(keys, 'should render', function(key, next) {
+  // TODO(bradleybossard): it.each allows you to name tests individually. To do
+  // this, test cases need to be in array format.
+  it.each(keys, 'should render image which pdiff passes golden image', function(key, next) {
+    this.timeout(testTimeout);
 		var compiledTree = compiled[key];
 
 		var render = renderer.render(compiledTree, canvas, randomNumber, maxObjects);
