@@ -8,7 +8,7 @@ notifications:
 node_js:
   - '4'
 before_install:
-  - apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
+  - sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
   - npm i -g npm@^2.0.0
 before_script:
   - npm prune
