@@ -5,6 +5,8 @@ var Canvas = require('canvas');
 var async = require('async');
 var rimraf = require('rimraf');
 var BlinkDiff = require('blink-diff');
+// Allows mocha to loop over an array of test cases.
+require('it-each')({ testPerIteration: true });
 
 var compiled = require('./testdata/compiled.json');
 
@@ -24,73 +26,81 @@ describe('renderer', function() {
 
   var keys = Object.keys(compiled);
 
-  // Create directory for actuals test comparison
-  if (!fs.existsSync(actualDirname)){
-    fs.mkdirSync(actualDirname);
-  }
+	before(function(done) {
+		async.series([function(callback) {
+			// Create directory for actuals test comparison
+			if (!fs.existsSync(actualDirname)){
+				fs.mkdirSync(actualDirname);
+				callback();
+			}
+		}, function(callback) {
+			// Create directories to put perceptual diff output
+			if (!fs.existsSync(outputDirname)){
+				fs.mkdirSync(outputDirname);
+				callback();
+			}
 
-  // Create directories to put perceptual diff output
-  if (!fs.existsSync(outputDirname)){
-    fs.mkdirSync(outputDirname);
-  }
+		// Signal to mocha we are done.
+		}, function() {
+			done();
+		}]);
+  });
 
-  it('should render', function(done) {
-    // TODO(bradleybossard): Get rid of this timeout
-    this.timeout(40000);
-    async.eachSeries(keys, function(key, callback) {
-      var compiledTree = compiled[key];
+	after(function(done) {
+		console.log('cleanup');
+		async.series([function(callback) {
+			if (fs.existsSync(actualDirname)){
+				rimraf(actualDirname, function(err) {
+					if (err) { throw err };
+					callback();
+				});
+			}
+		}, function(callback) {
+			if (fs.existsSync(outputDirname)){
+				rimraf(outputDirname, function(err) {
+					if (err) { throw err };
+					callback();
+				});
+			}
+		// Signal to mocha we are done.
+		}, function() {
+			done();
+		}]);
+	});
 
-      var render = renderer.render(compiledTree, canvas, randomNumber, maxObjects);
+  // TODO(bradleybossard): it.each allows you to name tests individually.
+  it.each(keys, 'should render', function(key, next) {
+		var compiledTree = compiled[key];
 
-      canvas.toBuffer(function(err, buf) {
-        if (err) {
-          console.log(err);
-          throw err;
-        }
-        var expectedFilename = expectedDirname + '/' + key + '.png';
-        var actualFilename = actualDirname + '/' + key + '.png';
-        var outputFilename = outputDirname + '/' + key + '.png';
-        fs.writeFile(actualFilename, buf, function() {
-          var diff = new BlinkDiff({
-            imageAPath: actualFilename,
-            imageBPath: expectedFilename,
-            thresholdType: BlinkDiff.THRESHOLD_PERCENT,
-            threshold: 0.01,
-            imageThreshold: 0.005,
-            imageOutputPath: outputFilename 
-          });
+		var render = renderer.render(compiledTree, canvas, randomNumber, maxObjects);
 
-          diff.run(function (error, result) {
-            if (error) {
-              throw error;
-            } else {
-              expect(diff.hasPassed(result.code)).to.be.true;
-            }
-            callback();
-          });
-        });
-      });
-    }
-    // Delete the actual and output directories from the tests.
-    ,function cleanup() {
-      async.series([function(callback) {
-        if (fs.existsSync(actualDirname)){
-          rimraf(actualDirname, function(err) {
-            if (err) { throw err };
-            callback();
-          });
-        }
-      }, function(callback) {
-        if (fs.existsSync(outputDirname)){
-          rimraf(outputDirname, function(err) {
-            if (err) { throw err };
-            callback();
-          });
-        }
-      // Signal to mocha we are done.
-      }, function() {
-        done();
-      }]);
-    });
+		canvas.toBuffer(function(err, buf) {
+			if (err) {
+				console.log(err);
+				throw err;
+			}
+			var expectedFilename = expectedDirname + '/' + key + '.png';
+			var actualFilename = actualDirname + '/' + key + '.png';
+			var outputFilename = outputDirname + '/' + key + '.png';
+			fs.writeFile(actualFilename, buf, function() {
+				var diff = new BlinkDiff({
+					imageAPath: actualFilename,
+					imageBPath: expectedFilename,
+					thresholdType: BlinkDiff.THRESHOLD_PERCENT,
+					threshold: 0.01,
+					imageThreshold: 0.005,
+					imageOutputPath: outputFilename 
+				});
+
+				diff.run(function (error, result) {
+					if (error) {
+						throw error;
+					} else {
+						expect(diff.hasPassed(result.code)).to.be.true;
+					}
+					next();
+				});
+			});
+		});
   });
 });
