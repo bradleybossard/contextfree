@@ -1,6 +1,7 @@
 sudo: false
 language: node_js
 sudo: require
+dist: trusty
 cache:
   directories:
     - node_modules
