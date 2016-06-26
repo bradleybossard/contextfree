@@ -55,9 +55,11 @@
 
       function render() {
         var cfdg = $code.val(); 
-        var tokens = contextfree.tokenize(cfdg);
-        $('#numTokens').html('numTokens = ' + tokens.length);
-        var compiled = contextfree.compile(tokens);
+        //var tokens = contextfree.tokenize(cfdg);
+        //$('#numTokens').html('numTokens = ' + tokens.length);
+        //var compiled = contextfree.compile(tokens);
+        console.log(cfdg);
+        var compiled = contextfree.compile(cfdg);
         contextfree.render(compiled, canvas);
       }
 

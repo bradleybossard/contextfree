@@ -1,14 +1,9 @@
-var tokenizer = require('./tokenizer.js');
 var compiler = require('./compiler.js');
 var renderer = require('./renderer.js');
 
-function tokenize(grammar) {
-  return tokenizer.tokenize(grammar);
-}
-
-function compile(tokens) {
+function compile(grammar) {
   var c = new compiler.compiler();
-  return(c.compile(tokens));
+  return(c.compile(grammar));
 }
 
 function render(compiled, canvas, canvasSize) {
@@ -18,7 +13,6 @@ function render(compiled, canvas, canvasSize) {
 }
 
 module.exports = {
-  tokenize: tokenize,
   compile: compile,
   render: render,
 };
