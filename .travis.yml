@@ -10,7 +10,7 @@ notifications:
 node_js:
   - '6'
 before_install:
-  - sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
+  - sudo apt-get install --yes libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
   - npm i -g npm@^3.9.3
 before_script:
   - npm prune
