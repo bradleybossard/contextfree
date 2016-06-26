@@ -1,4 +1,6 @@
-var tokenizer = require('./tokenizer');
+// This script is used to generate all the golden data and images for
+// the tests.
+
 var compiler = require('./compiler');
 var renderer = require('./renderer');
 var fs = require('fs');
@@ -8,7 +10,6 @@ var async = require('async');
 var cfdgsExamples = require('../grammars/cfdgs-pretty-non-broken.json');
 
 var dirname = "./src/testdata/expected";
-var tokenizedFilepath = "./src/testdata/tokenized.json";
 var compiledFilepath = "./src/testdata/compiled.json";
 
 var height = 600;
@@ -18,7 +19,6 @@ var maxObjects = 1000;
 
 var keys = Object.keys(cfdgsExamples);
 
-var tokenized = {};
 var compiled = {};
 var c = new compiler.compiler();
 
@@ -29,10 +29,8 @@ if (!fs.existsSync(dirname)){
 async.eachSeries(keys, function writeImage(key, callback) {
   var canvas = new Canvas(width, height);
   var grammar = cfdgsExamples[key];
-  var tokens = tokenizer.tokenize(grammar);
-  tokenized[key] = tokens.slice(0);
 
-  var compiledTree = c.compile(tokens);
+  var compiledTree = c.compile(grammar);
   compiled[key] = compiledTree; 
 
   var filename = dirname + '/' + key + '.png';
@@ -48,16 +46,7 @@ async.eachSeries(keys, function writeImage(key, callback) {
   });
 }, 
 function writeCompiled() {
-  var tokenizedString = JSON.stringify(tokenized);
   var compiledString = JSON.stringify(compiled);
-
-  fs.writeFile(tokenizedFilepath, tokenizedString, function(err) {
-    if(err) {
-      return console.log(err);
-    }
-    console.log("The file " + tokenizedFilepath + " was saved!");
-  });
-
   fs.writeFile(compiledFilepath, compiledString, function(err) {
     if(err) {
       return console.log(err);
