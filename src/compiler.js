@@ -45,7 +45,6 @@ function tokenizeNext(pos) {
 function tokenize(grammar) {
   input = grammar;
   // To make it easier to parse, we pad the brackets with spaces.
-  console.log('input', input);
   input = input.replace( /([{}])/g, " $1");	
   
   var tokens = [];
